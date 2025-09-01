@@ -30,8 +30,8 @@
       padding: 15px;
       box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s;
-      cursor: pointer;
       text-align: center;
+      position: relative;
     }
     .card:hover {
       transform: scale(1.03);
@@ -46,6 +46,21 @@
       font-size: 16px;
       color: #333;
       word-break: break-word;
+    }
+    .edit-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #ff9800;
+      border: none;
+      color: white;
+      padding: 4px 6px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .edit-btn:hover {
+      background: #e68900;
     }
     .toolbar {
       text-align: center;
@@ -103,10 +118,10 @@
   <!-- Folder Dialog -->
   <div class="dialog" id="folderDialog">
     <div class="dialog-box">
-      <h3>Create New Folder</h3>
+      <h3 id="folderDialogTitle">Create New Folder</h3>
       <input type="text" id="folderName" placeholder="Enter folder name">
       <br>
-      <button class="btn" onclick="createFolder()">Save</button>
+      <button class="btn" onclick="saveFolder()">Save</button>
       <button class="btn" style="background:#aaa;" onclick="closeFolderDialog()">Cancel</button>
     </div>
   </div>
@@ -114,6 +129,7 @@
 <script>
   let data = JSON.parse(localStorage.getItem("eduDocs")) || { folders: [] };
   let currentFolder = null;
+  let editIndex = null; // For editing folder
   const container = document.getElementById("container");
   const fileInput = document.getElementById("fileInput");
   const backBtn = document.getElementById("backBtn");
@@ -131,8 +147,10 @@
       data.folders.forEach((folder, i) => {
         let card = document.createElement("div");
         card.className = "card";
-        card.innerHTML = `<img src="https://img.icons8.com/color/96/folder-invoices.png">
-                          <h3>${folder.name}</h3>`;
+        card.innerHTML = `
+          <button class="edit-btn" onclick="editFolder(event, ${i})">✏️</button>
+          <img src="https://img.icons8.com/color/96/folder-invoices.png">
+          <h3>${folder.name}</h3>`;
         card.onclick = () => openFolder(i);
         container.appendChild(card);
       });
@@ -163,7 +181,9 @@
   }
 
   function openFolderDialog() {
+    document.getElementById("folderDialogTitle").innerText = "Create New Folder";
     document.getElementById("folderName").value = "";
+    editIndex = null;
     document.getElementById("folderDialog").style.display = "flex";
   }
 
@@ -171,13 +191,25 @@
     document.getElementById("folderDialog").style.display = "none";
   }
 
-  function createFolder() {
+  function saveFolder() {
     let name = document.getElementById("folderName").value.trim();
     if (!name) return alert("Enter folder name!");
-    data.folders.push({ name, files: [] });
+    if (editIndex !== null) {
+      data.folders[editIndex].name = name;
+    } else {
+      data.folders.push({ name, files: [] });
+    }
     saveData();
     closeFolderDialog();
     render();
+  }
+
+  function editFolder(event, index) {
+    event.stopPropagation();
+    editIndex = index;
+    document.getElementById("folderDialogTitle").innerText = "Edit Folder Name";
+    document.getElementById("folderName").value = data.folders[index].name;
+    document.getElementById("folderDialog").style.display = "flex";
   }
 
   fileInput.addEventListener("change", function(e) {
@@ -218,3 +250,4 @@
 </script>
 </body>
 </html>
+
