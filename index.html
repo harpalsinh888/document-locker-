@@ -107,12 +107,8 @@
 <body>
   <!-- Password Dialog (Gujarati Text) -->
   <div class="dialog" id="passwordDialog" style="display:flex;">
-    <div class="dialog-box">
-      <h3>ડોક્યુમેન્ટ જોવા માટે પાસવર્ડ નાખો</h3>
-      <input type="password" id="passwordInput" placeholder="પાસવર્ડ લખો">
-      <br>
-      <button class="btn" onclick="checkPassword()">અનલોક કરો</button>
-      <div id="passMsg" style="color:red;margin-top:10px;"></div>
+    <div class="dialog-box" id="passwordDialogBox">
+      <!-- Content filled by JS -->
     </div>
   </div>
 
@@ -140,19 +136,70 @@
 
 <script>
   // ======= PASSWORD SECTION =======
-  // Change your password here
-  const DOC_PASSWORD = "gujarati@123"; // તમારું પાસવર્ડ આમાં મૂકો
+  // LocalStorage key for password
+  const PASS_KEY = "eduDocsPassword";
+
+  function showPasswordDialog() {
+    let savedPass = localStorage.getItem(PASS_KEY);
+    let dialogBox = document.getElementById("passwordDialogBox");
+    if (!savedPass) {
+      // First time: ask to set password
+      dialogBox.innerHTML = `
+        <h3>પ્રથમ વખત: પાસવર્ડ સેટ કરો</h3>
+        <input type="password" id="newPassword" placeholder="પાસવર્ડ લખો">
+        <input type="password" id="confirmPassword" placeholder="પાસવર્ડ ફરી લખો">
+        <br>
+        <button class="btn" onclick="setPassword()">સેટ કરો</button>
+        <div id="passMsg" style="color:red;margin-top:10px;"></div>
+      `;
+    } else {
+      // Already set: ask to enter password
+      dialogBox.innerHTML = `
+        <h3>પાસવર્ડ નાખો</h3>
+        <input type="password" id="passwordInput" placeholder="પાસવર્ડ લખો">
+        <br>
+        <button class="btn" onclick="checkPassword()">અનલોક કરો</button>
+        <div id="passMsg" style="color:red;margin-top:10px;"></div>
+      `;
+    }
+    document.getElementById("passwordDialog").style.display = "flex";
+  }
+
+  function setPassword() {
+    let p1 = document.getElementById("newPassword").value;
+    let p2 = document.getElementById("confirmPassword").value;
+    let msg = document.getElementById("passMsg");
+    if (!p1 || !p2) {
+      msg.innerText = "પાસવર્ડ લખો!";
+      return;
+    }
+    if (p1.length < 4) {
+      msg.innerText = "પછીથી યાદ રહી શકે એવો 4 કે વધારે અક્ષરનો પાસવર્ડ લખો!";
+      return;
+    }
+    if (p1 !== p2) {
+      msg.innerText = "પાસવર્ડ મેળ ખાતા નથી!";
+      return;
+    }
+    localStorage.setItem(PASS_KEY, p1);
+    unlockAndShow();
+  }
 
   function checkPassword() {
-    const inputPass = document.getElementById("passwordInput").value;
-    if (inputPass === DOC_PASSWORD) {
-      document.getElementById("passwordDialog").style.display = "none";
-      container.style.display = "grid";
-      document.querySelector(".toolbar").style.display = "block";
-      render();
+    let inputPass = document.getElementById("passwordInput").value;
+    let savedPass = localStorage.getItem(PASS_KEY);
+    if (inputPass === savedPass) {
+      unlockAndShow();
     } else {
       document.getElementById("passMsg").innerText = "ખોટો પાસવર્ડ છે. ફરી પ્રયાસ કરો!";
     }
+  }
+
+  function unlockAndShow() {
+    document.getElementById("passwordDialog").style.display = "none";
+    container.style.display = "grid";
+    document.querySelector(".toolbar").style.display = "block";
+    render();
   }
 
   // ======= DOCUMENT SECTION =======
@@ -297,7 +344,8 @@
     return new Blob([u8arr], {type:mime});
   }
 
-  // Initially show only password dialog (already set display:flex in HTML)
+  // Show password dialog on load
+  showPasswordDialog();
 </script>
 </body>
 </html>
