@@ -209,7 +209,7 @@
   <div class="dialog" id="folderDialog">
     <div class="dialog-box">
       <h3 id="folderDialogTitle">Create New Folder</h3>
-      <input type="text" id="folderName" placeholder="Enter folder name">
+      <input type="text" id="folderName" placeholder="Enter folder name" autocomplete="off" autocapitalize="none" style="font-size:1rem; padding:10px;">
       <button class="btn" style="margin-top:10px;" onclick="saveFolder()">Save</button>
       <button class="btn" style="background:#aaa;color:#222;margin-top:8px;" onclick="closeFolderDialog()">Cancel</button>
     </div>
@@ -328,6 +328,7 @@
     document.getElementById("folderName").value = "";
     editIndex = null;
     document.getElementById("folderDialog").style.display = "flex";
+    setTimeout(function() { document.getElementById("folderName").focus(); }, 100);
   }
 
   function closeFolderDialog() {
@@ -353,6 +354,7 @@
     document.getElementById("folderDialogTitle").innerText = "Edit Folder Name";
     document.getElementById("folderName").value = data.folders[index].name;
     document.getElementById("folderDialog").style.display = "flex";
+    setTimeout(function() { document.getElementById("folderName").focus(); }, 100);
   }
 
   function deleteFolder(event, index) {
