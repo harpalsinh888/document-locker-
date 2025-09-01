@@ -47,10 +47,9 @@
       color: #333;
       word-break: break-word;
     }
-    .edit-btn {
+    .edit-btn, .delete-btn {
       position: absolute;
       top: 5px;
-      right: 5px;
       background: #ff9800;
       border: none;
       color: white;
@@ -59,9 +58,10 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .edit-btn:hover {
-      background: #e68900;
-    }
+    .edit-btn { right: 35px; }
+    .delete-btn { right: 5px; background: red; }
+    .edit-btn:hover { background: #e68900; }
+    .delete-btn:hover { background: darkred; }
     .toolbar {
       text-align: center;
       margin: 10px 0;
@@ -129,7 +129,7 @@
 <script>
   let data = JSON.parse(localStorage.getItem("eduDocs")) || { folders: [] };
   let currentFolder = null;
-  let editIndex = null; // For editing folder
+  let editIndex = null;
   const container = document.getElementById("container");
   const fileInput = document.getElementById("fileInput");
   const backBtn = document.getElementById("backBtn");
@@ -149,17 +149,20 @@
         card.className = "card";
         card.innerHTML = `
           <button class="edit-btn" onclick="editFolder(event, ${i})">✏️</button>
+          <button class="delete-btn" onclick="deleteFolder(event, ${i})">🗑</button>
           <img src="https://img.icons8.com/color/96/folder-invoices.png">
           <h3>${folder.name}</h3>`;
         card.onclick = () => openFolder(i);
         container.appendChild(card);
       });
     } else {
-      // Show Files in Folder
+      // Show Files
       currentFolder.files.forEach((file, i) => {
         let card = document.createElement("div");
         card.className = "card";
-        card.innerHTML = `<img src="${getIcon(file.name)}"><h3>${file.name}</h3>`;
+        card.innerHTML = `
+          <button class="delete-btn" onclick="deleteFile(event, ${i})">🗑</button>
+          <img src="${getIcon(file.name)}"><h3>${file.name}</h3>`;
         card.onclick = () => {
           let blob = dataURLtoBlob(file.file);
           let url = URL.createObjectURL(blob);
@@ -172,6 +175,7 @@
 
   function openFolder(index) {
     currentFolder = data.folders[index];
+    currentFolder.index = index;
     render();
   }
 
@@ -212,6 +216,24 @@
     document.getElementById("folderDialog").style.display = "flex";
   }
 
+  function deleteFolder(event, index) {
+    event.stopPropagation();
+    if (confirm("Delete this folder and all its files?")) {
+      data.folders.splice(index, 1);
+      saveData();
+      render();
+    }
+  }
+
+  function deleteFile(event, index) {
+    event.stopPropagation();
+    if (confirm("Delete this file?")) {
+      currentFolder.files.splice(index, 1);
+      saveData();
+      render();
+    }
+  }
+
   fileInput.addEventListener("change", function(e) {
     if (!currentFolder) {
       alert("Select a folder first!");
@@ -250,4 +272,3 @@
 </script>
 </body>
 </html>
-
