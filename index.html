@@ -1,123 +1,196 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>📚 મારો એજ્યુકેશન ડોક્યુમેન્ટ</title>
+  <title>📚 My Education Documents</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    :root {
+      --primary: #4a6cf7;
+      --accent: #2ed8a7;
+      --error: #f85a40;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      --card-radius: 18px;
+      --card-blur: 12px;
+      --transition: 0.20s;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #f3f6fb;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #e6eeff 0%, #c7eaff 100%);
       margin: 0;
       padding: 0;
+      min-height: 100vh;
     }
     header {
-      background: #4a6cf7;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
       color: white;
-      padding: 15px;
+      padding: 32px 0 26px 0;
       text-align: center;
-      font-size: 22px;
-      font-weight: bold;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      box-shadow: var(--shadow);
+      border-bottom-left-radius: 32px;
+      border-bottom-right-radius: 32px;
+      margin-bottom: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     .container {
-      padding: 20px;
+      padding: 28px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 26px;
     }
     .card {
-      background: white;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
+      background: var(--glass);
+      backdrop-filter: blur(var(--card-blur));
+      border-radius: var(--card-radius);
+      padding: 24px 14px 16px 14px;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), box-shadow var(--transition);
       text-align: center;
       position: relative;
+      border: 2px solid #e3ebff;
+      margin-bottom: 0;
     }
     .card:hover {
-      transform: scale(1.03);
+      transform: scale(1.045);
+      box-shadow: 0 12px 24px 0 rgba(80, 120, 255, 0.23);
+      border-color: var(--primary);
     }
     .card img {
-      width: 60px;
-      height: 60px;
-      margin-bottom: 8px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 2px 8px rgba(74,108,247,0.10));
+      border-radius: 9px;
+      background: #f3f6fb;
     }
     .card h3 {
       margin: 0;
-      font-size: 16px;
+      font-size: 1.08rem;
       color: #333;
+      font-weight: 600;
       word-break: break-word;
+      letter-spacing: 0.5px;
     }
     .edit-btn, .delete-btn {
       position: absolute;
-      top: 5px;
-      background: #ff9800;
+      top: 12px;
+      background: var(--primary);
       border: none;
       color: white;
-      padding: 4px 6px;
-      font-size: 12px;
-      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 6px;
       cursor: pointer;
+      box-shadow: 0 2px 6px rgba(74,108,247,0.14);
+      transition: background var(--transition), transform var(--transition);
+      z-index: 2;
     }
-    .edit-btn { right: 35px; }
-    .delete-btn { right: 5px; background: red; }
-    .edit-btn:hover { background: #e68900; }
-    .delete-btn:hover { background: darkred; }
+    .edit-btn { right: 54px; }
+    .delete-btn { right: 14px; background: var(--error);}
+    .edit-btn:hover { background: #3651c9; transform: scale(1.05);}
+    .delete-btn:hover { background: #d32f2f; transform: scale(1.09);}
     .toolbar {
       text-align: center;
-      margin: 10px 0;
+      margin: 18px 0 8px 0;
+      padding: 0 10px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
     .btn {
-      background: #4a6cf7;
-      color: white;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      color: #fff;
       border: none;
-      padding: 12px 18px;
-      border-radius: 8px;
+      padding: 14px 22px;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 14px;
-      margin: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(74,108,247,0.12);
+      margin: 0;
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+      letter-spacing: 1px;
     }
     .btn:hover {
-      background: #3651c9;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      box-shadow: 0 4px 18px rgba(46,216,167,0.13);
+      transform: scale(1.08);
     }
     .dialog {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(74,108,247,0.15);
       justify-content: center;
       align-items: center;
       z-index: 9999;
+      transition: background var(--transition);
     }
     .dialog-box {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
+      background: var(--glass);
+      backdrop-filter: blur(18px);
+      padding: 32px 18px 22px 18px;
+      border-radius: 18px;
+      width: 330px;
+      max-width: 92vw;
       text-align: center;
+      box-shadow: var(--shadow);
+      border: 2px solid #e3ebff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
     }
     .dialog-box input {
-      width: 90%;
-      padding: 8px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      width: 93%;
+      padding: 10px;
+      margin: 12px 0 8px 0;
+      border: 1.7px solid #c7eaff;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #f9fbff;
+      transition: border var(--transition);
+    }
+    .dialog-box input:focus {
+      border: 2.2px solid var(--primary);
+      outline: none;
+      background: #f3f6fb;
+    }
+    #passMsg {
+      color: var(--error);
+      font-size: 1rem;
+      margin-top: 10px;
+      min-height: 18px;
+    }
+    @media (max-width: 600px) {
+      header { font-size: 1.25rem; border-radius: 0; padding: 22px 0;}
+      .container { padding: 10px; gap: 14px;}
+      .dialog-box { width: 98vw; padding: 14px;}
+      .card { padding: 14px 6px 10px 6px;}
+      .toolbar { flex-direction: column; gap: 10px;}
+      .btn { padding: 10px 14px; border-radius: 9px; }
     }
   </style>
 </head>
 <body>
-  <!-- Password Dialog (Gujarati Text) -->
+  <!-- Password Dialog -->
   <div class="dialog" id="passwordDialog" style="display:flex;">
-    <div class="dialog-box" id="passwordDialogBox">
-      <!-- Content filled by JS -->
-    </div>
+    <div class="dialog-box" id="passwordDialogBox"></div>
   </div>
 
-  <header>📚 મારો એજ્યુકેશન ડોક્યુમેન્ટ</header>
+  <header>📚 My Education Documents</header>
 
   <div class="toolbar" style="display:none;">
-    <button class="btn" onclick="openFolderDialog()">📁 નવું ફોલ્ડર</button>
-    <button class="btn" onclick="document.getElementById('fileInput').click()">📄 ફાઈલ અપલોડ કરો</button>
-    <button class="btn" onclick="goBack()" id="backBtn" style="display:none;">⬅ પાછા જાવ</button>
+    <button class="btn" onclick="openFolderDialog()">📁 New Folder</button>
+    <button class="btn" onclick="document.getElementById('fileInput').click()">📄 Upload File</button>
+    <button class="btn" onclick="goBack()" id="backBtn" style="display:none;">⬅ Back</button>
     <input type="file" id="fileInput" multiple style="display:none;">
   </div>
 
@@ -126,79 +199,62 @@
   <!-- Folder Dialog -->
   <div class="dialog" id="folderDialog">
     <div class="dialog-box">
-      <h3 id="folderDialogTitle">નવું ફોલ્ડર બનાવો</h3>
-      <input type="text" id="folderName" placeholder="ફોલ્ડરનું નામ લખો">
-      <br>
-      <button class="btn" onclick="saveFolder()">સેવ કરો</button>
-      <button class="btn" style="background:#aaa;" onclick="closeFolderDialog()">રદ કરો</button>
+      <h3 id="folderDialogTitle">Create New Folder</h3>
+      <input type="text" id="folderName" placeholder="Enter folder name">
+      <button class="btn" style="margin-top:10px;" onclick="saveFolder()">Save</button>
+      <button class="btn" style="background:#aaa;color:#222;margin-top:8px;" onclick="closeFolderDialog()">Cancel</button>
     </div>
   </div>
 
 <script>
   // ======= PASSWORD SECTION =======
-  // LocalStorage key for password
   const PASS_KEY = "eduDocsPassword";
-
   function showPasswordDialog() {
     let savedPass = localStorage.getItem(PASS_KEY);
     let dialogBox = document.getElementById("passwordDialogBox");
     if (!savedPass) {
-      // First time: ask to set password
       dialogBox.innerHTML = `
-        <h3>પ્રથમ વખત: પાસવર્ડ સેટ કરો</h3>
-        <input type="password" id="newPassword" placeholder="પાસવર્ડ લખો">
-        <input type="password" id="confirmPassword" placeholder="પાસવર્ડ ફરી લખો">
-        <br>
-        <button class="btn" onclick="setPassword()">સેટ કરો</button>
-        <div id="passMsg" style="color:red;margin-top:10px;"></div>
+        <h3 style="margin-bottom:0;">Set Your Password</h3>
+        <p style="font-size:0.97rem;margin-bottom:9px;color:#333;">First time setup. Choose a password for your documents.</p>
+        <input type="password" id="newPassword" placeholder="Enter password">
+        <input type="password" id="confirmPassword" placeholder="Confirm password">
+        <button class="btn" onclick="setPassword()" style="margin-top:8px;">Set Password</button>
+        <div id="passMsg"></div>
       `;
     } else {
-      // Already set: ask to enter password
       dialogBox.innerHTML = `
-        <h3>પાસવર્ડ નાખો</h3>
-        <input type="password" id="passwordInput" placeholder="પાસવર્ડ લખો">
-        <br>
-        <button class="btn" onclick="checkPassword()">અનલોક કરો</button>
-        <div id="passMsg" style="color:red;margin-top:10px;"></div>
+        <h3 style="margin-bottom:0;">Enter Password</h3>
+        <p style="font-size:0.97rem;margin-bottom:9px;color:#333;">Unlock your education documents.</p>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button class="btn" onclick="checkPassword()" style="margin-top:8px;">Unlock</button>
+        <div id="passMsg"></div>
       `;
     }
     document.getElementById("passwordDialog").style.display = "flex";
   }
-
   function setPassword() {
     let p1 = document.getElementById("newPassword").value;
     let p2 = document.getElementById("confirmPassword").value;
     let msg = document.getElementById("passMsg");
-    if (!p1 || !p2) {
-      msg.innerText = "પાસવર્ડ લખો!";
-      return;
-    }
-    if (p1.length < 4) {
-      msg.innerText = "પછીથી યાદ રહી શકે એવો 4 કે વધારે અક્ષરનો પાસવર્ડ લખો!";
-      return;
-    }
-    if (p1 !== p2) {
-      msg.innerText = "પાસવર્ડ મેળ ખાતા નથી!";
-      return;
-    }
+    if (!p1 || !p2) { msg.innerText = "Please enter password in both fields!"; return;}
+    if (p1.length < 4) { msg.innerText = "Password must be at least 4 characters."; return;}
+    if (p1 !== p2) { msg.innerText = "Passwords do not match!"; return;}
     localStorage.setItem(PASS_KEY, p1);
     unlockAndShow();
   }
-
   function checkPassword() {
     let inputPass = document.getElementById("passwordInput").value;
     let savedPass = localStorage.getItem(PASS_KEY);
     if (inputPass === savedPass) {
       unlockAndShow();
     } else {
-      document.getElementById("passMsg").innerText = "ખોટો પાસવર્ડ છે. ફરી પ્રયાસ કરો!";
+      document.getElementById("passMsg").innerText = "Incorrect password. Try again!";
     }
   }
-
   function unlockAndShow() {
     document.getElementById("passwordDialog").style.display = "none";
     container.style.display = "grid";
-    document.querySelector(".toolbar").style.display = "block";
+    document.querySelector(".toolbar").style.display = "flex";
     render();
   }
 
@@ -210,9 +266,7 @@
   const fileInput = document.getElementById("fileInput");
   const backBtn = document.getElementById("backBtn");
 
-  function saveData() {
-    localStorage.setItem("eduDocs", JSON.stringify(data));
-  }
+  function saveData() { localStorage.setItem("eduDocs", JSON.stringify(data)); }
 
   function render() {
     container.innerHTML = "";
@@ -224,8 +278,8 @@
         let card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <button class="edit-btn" onclick="editFolder(event, ${i})">✏️</button>
-          <button class="delete-btn" onclick="deleteFolder(event, ${i})">🗑</button>
+          <button class="edit-btn" onclick="editFolder(event, ${i})">Edit</button>
+          <button class="delete-btn" onclick="deleteFolder(event, ${i})">Delete</button>
           <img src="https://img.icons8.com/color/96/folder-invoices.png">
           <h3>${folder.name}</h3>`;
         card.onclick = () => openFolder(i);
@@ -237,7 +291,7 @@
         let card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <button class="delete-btn" onclick="deleteFile(event, ${i})">🗑</button>
+          <button class="delete-btn" onclick="deleteFile(event, ${i})">Delete</button>
           <img src="${getIcon(file.name)}"><h3>${file.name}</h3>`;
         card.onclick = () => {
           let blob = dataURLtoBlob(file.file);
@@ -261,7 +315,7 @@
   }
 
   function openFolderDialog() {
-    document.getElementById("folderDialogTitle").innerText = "નવું ફોલ્ડર બનાવો";
+    document.getElementById("folderDialogTitle").innerText = "Create New Folder";
     document.getElementById("folderName").value = "";
     editIndex = null;
     document.getElementById("folderDialog").style.display = "flex";
@@ -273,7 +327,7 @@
 
   function saveFolder() {
     let name = document.getElementById("folderName").value.trim();
-    if (!name) return alert("ફોલ્ડરનું નામ લખો!");
+    if (!name) return alert("Please enter folder name!");
     if (editIndex !== null) {
       data.folders[editIndex].name = name;
     } else {
@@ -287,14 +341,14 @@
   function editFolder(event, index) {
     event.stopPropagation();
     editIndex = index;
-    document.getElementById("folderDialogTitle").innerText = "ફોલ્ડરનું નામ બદલો";
+    document.getElementById("folderDialogTitle").innerText = "Edit Folder Name";
     document.getElementById("folderName").value = data.folders[index].name;
     document.getElementById("folderDialog").style.display = "flex";
   }
 
   function deleteFolder(event, index) {
     event.stopPropagation();
-    if (confirm("આ ફોલ્ડર અને તેની બધી ફાઈલ્સ ડિલીટ કરવા છે?")) {
+    if (confirm("Delete this folder and all its files?")) {
       data.folders.splice(index, 1);
       saveData();
       render();
@@ -303,7 +357,7 @@
 
   function deleteFile(event, index) {
     event.stopPropagation();
-    if (confirm("આ ફાઈલ ડિલીટ કરવા છે?")) {
+    if (confirm("Delete this file?")) {
       currentFolder.files.splice(index, 1);
       saveData();
       render();
@@ -312,7 +366,7 @@
 
   fileInput.addEventListener("change", function(e) {
     if (!currentFolder) {
-      alert("પહેલાં કોઈ ફોલ્ડર પસંદ કરો!");
+      alert("Select a folder first!");
       fileInput.value = "";
       return;
     }
