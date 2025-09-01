@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="gu">
 <head>
   <meta charset="UTF-8">
-  <title>📚 My Education Docs</title>
+  <title>📚 મારો એજ્યુકેશન ડોક્યુમેન્ટ</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -86,6 +86,7 @@
       background: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
+      z-index: 9999;
     }
     .dialog-box {
       background: white;
@@ -104,29 +105,57 @@
   </style>
 </head>
 <body>
-  <header>📚 My Education Documents</header>
+  <!-- Password Dialog (Gujarati Text) -->
+  <div class="dialog" id="passwordDialog" style="display:flex;">
+    <div class="dialog-box">
+      <h3>ડોક્યુમેન્ટ જોવા માટે પાસવર્ડ નાખો</h3>
+      <input type="password" id="passwordInput" placeholder="પાસવર્ડ લખો">
+      <br>
+      <button class="btn" onclick="checkPassword()">અનલોક કરો</button>
+      <div id="passMsg" style="color:red;margin-top:10px;"></div>
+    </div>
+  </div>
 
-  <div class="toolbar">
-    <button class="btn" onclick="openFolderDialog()">📁 New Folder</button>
-    <button class="btn" onclick="document.getElementById('fileInput').click()">📄 Upload File</button>
-    <button class="btn" onclick="goBack()" id="backBtn" style="display:none;">⬅ Back</button>
+  <header>📚 મારો એજ્યુકેશન ડોક્યુમેન્ટ</header>
+
+  <div class="toolbar" style="display:none;">
+    <button class="btn" onclick="openFolderDialog()">📁 નવું ફોલ્ડર</button>
+    <button class="btn" onclick="document.getElementById('fileInput').click()">📄 ફાઈલ અપલોડ કરો</button>
+    <button class="btn" onclick="goBack()" id="backBtn" style="display:none;">⬅ પાછા જાવ</button>
     <input type="file" id="fileInput" multiple style="display:none;">
   </div>
 
-  <div class="container" id="container"></div>
+  <div class="container" id="container" style="display:none;"></div>
 
   <!-- Folder Dialog -->
   <div class="dialog" id="folderDialog">
     <div class="dialog-box">
-      <h3 id="folderDialogTitle">Create New Folder</h3>
-      <input type="text" id="folderName" placeholder="Enter folder name">
+      <h3 id="folderDialogTitle">નવું ફોલ્ડર બનાવો</h3>
+      <input type="text" id="folderName" placeholder="ફોલ્ડરનું નામ લખો">
       <br>
-      <button class="btn" onclick="saveFolder()">Save</button>
-      <button class="btn" style="background:#aaa;" onclick="closeFolderDialog()">Cancel</button>
+      <button class="btn" onclick="saveFolder()">સેવ કરો</button>
+      <button class="btn" style="background:#aaa;" onclick="closeFolderDialog()">રદ કરો</button>
     </div>
   </div>
 
 <script>
+  // ======= PASSWORD SECTION =======
+  // Change your password here
+  const DOC_PASSWORD = "gujarati@123"; // તમારું પાસવર્ડ આમાં મૂકો
+
+  function checkPassword() {
+    const inputPass = document.getElementById("passwordInput").value;
+    if (inputPass === DOC_PASSWORD) {
+      document.getElementById("passwordDialog").style.display = "none";
+      container.style.display = "grid";
+      document.querySelector(".toolbar").style.display = "block";
+      render();
+    } else {
+      document.getElementById("passMsg").innerText = "ખોટો પાસવર્ડ છે. ફરી પ્રયાસ કરો!";
+    }
+  }
+
+  // ======= DOCUMENT SECTION =======
   let data = JSON.parse(localStorage.getItem("eduDocs")) || { folders: [] };
   let currentFolder = null;
   let editIndex = null;
@@ -185,7 +214,7 @@
   }
 
   function openFolderDialog() {
-    document.getElementById("folderDialogTitle").innerText = "Create New Folder";
+    document.getElementById("folderDialogTitle").innerText = "નવું ફોલ્ડર બનાવો";
     document.getElementById("folderName").value = "";
     editIndex = null;
     document.getElementById("folderDialog").style.display = "flex";
@@ -197,7 +226,7 @@
 
   function saveFolder() {
     let name = document.getElementById("folderName").value.trim();
-    if (!name) return alert("Enter folder name!");
+    if (!name) return alert("ફોલ્ડરનું નામ લખો!");
     if (editIndex !== null) {
       data.folders[editIndex].name = name;
     } else {
@@ -211,14 +240,14 @@
   function editFolder(event, index) {
     event.stopPropagation();
     editIndex = index;
-    document.getElementById("folderDialogTitle").innerText = "Edit Folder Name";
+    document.getElementById("folderDialogTitle").innerText = "ફોલ્ડરનું નામ બદલો";
     document.getElementById("folderName").value = data.folders[index].name;
     document.getElementById("folderDialog").style.display = "flex";
   }
 
   function deleteFolder(event, index) {
     event.stopPropagation();
-    if (confirm("Delete this folder and all its files?")) {
+    if (confirm("આ ફોલ્ડર અને તેની બધી ફાઈલ્સ ડિલીટ કરવા છે?")) {
       data.folders.splice(index, 1);
       saveData();
       render();
@@ -227,7 +256,7 @@
 
   function deleteFile(event, index) {
     event.stopPropagation();
-    if (confirm("Delete this file?")) {
+    if (confirm("આ ફાઈલ ડિલીટ કરવા છે?")) {
       currentFolder.files.splice(index, 1);
       saveData();
       render();
@@ -236,7 +265,7 @@
 
   fileInput.addEventListener("change", function(e) {
     if (!currentFolder) {
-      alert("Select a folder first!");
+      alert("પહેલાં કોઈ ફોલ્ડર પસંદ કરો!");
       fileInput.value = "";
       return;
     }
@@ -268,7 +297,7 @@
     return new Blob([u8arr], {type:mime});
   }
 
-  render();
+  // Initially show only password dialog (already set display:flex in HTML)
 </script>
 </body>
 </html>
