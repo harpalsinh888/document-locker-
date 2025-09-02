@@ -304,8 +304,16 @@
           <img src="${getIcon(file.name)}"/>
           <h3>${escapeHtml(file.name)}</h3>`;
         card.addEventListener("click",()=>{
-          const blob=dataURLtoBlob(file.file);const url=URL.createObjectURL(blob);window.open(url,"_blank");
-        });container.appendChild(card);
+          const blob=dataURLtoBlob(file.file);
+          const url=URL.createObjectURL(blob);
+          const a=document.createElement("a");
+          a.href=url; a.download=file.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+        container.appendChild(card);
       });
       const backCard=document.createElement("div");backCard.className="card";backCard.style.gridColumn="1/-1";
       backCard.innerHTML=`<h3>⬅ Back to folders</h3>`;backCard.addEventListener("click",goBack);container.insertBefore(backCard,container.firstChild);
@@ -343,9 +351,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
