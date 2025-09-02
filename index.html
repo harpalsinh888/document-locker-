@@ -92,9 +92,9 @@
       z-index: 2;
     }
     .edit-btn { right: 54px; }
-    .delete-btn { right: 14px; background: var(--error);}
-    .edit-btn:hover { background: #3651c9; transform: scale(1.05);}
-    .delete-btn:hover { background: #d32f2f; transform: scale(1.09);}
+    .delete-btn { right: 14px; background: var(--error); }
+    .edit-btn:hover { background: #3651c9; transform: scale(1.05); }
+    .delete-btn:hover { background: #d32f2f; transform: scale(1.09); }
     .toolbar {
       text-align: center;
       margin: 18px 0 8px 0;
@@ -132,6 +132,10 @@
       align-items: center;
       z-index: 9999;
       transition: background var(--transition);
+      pointer-events: none;
+    }
+    .dialog[style*="display: flex"] {
+      pointer-events: auto;
     }
     .dialog-box {
       background: var(--glass);
@@ -170,21 +174,21 @@
       min-height: 18px;
     }
     @media (max-width: 900px) {
-      .container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 14px; gap: 14px;}
-      header { font-size: 1.35rem; border-radius: 0; padding: 18px 0;}
-      .dialog-box { width: 98vw; padding: 14px;}
-      .card { padding: 14px 6px 10px 6px;}
-      .toolbar { flex-direction: column; gap: 10px;}
+      .container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 14px; gap: 14px; }
+      header { font-size: 1.35rem; border-radius: 0; padding: 18px 0; }
+      .dialog-box { width: 98vw; padding: 14px; }
+      .card { padding: 14px 6px 10px 6px; }
+      .toolbar { flex-direction: column; gap: 10px; }
       .btn { padding: 10px 14px; border-radius: 9px; }
     }
     @media (max-width: 600px) {
-      header { font-size: 1.15rem; border-radius: 0; padding: 12px 0;}
-      .container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 6px; gap: 8px;}
-      .dialog-box { width: 99vw; padding: 8px;}
-      .card { padding: 10px 3px 7px 3px;}
-      .toolbar { flex-direction: column; gap: 7px;}
-      .btn { padding: 8px 10px; border-radius: 8px; font-size: 0.96rem;}
-      .card img {width: 46px; height: 46px;}
+      header { font-size: 1.15rem; border-radius: 0; padding: 12px 0; }
+      .container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 6px; gap: 8px; }
+      .dialog-box { width: 99vw; padding: 8px; }
+      .card { padding: 10px 3px 7px 3px; }
+      .toolbar { flex-direction: column; gap: 7px; }
+      .btn { padding: 8px 10px; border-radius: 8px; font-size: 0.96rem; }
+      .card img { width: 46px; height: 46px; }
     }
   </style>
 </head>
@@ -197,7 +201,7 @@
   <header>📚 My Education Documents</header>
 
   <div class="toolbar" style="display:none;">
-    <button class="btn" onclick="openFolderDialog()">📁 New Folder</button>
+    <button class="btn" onclick="openFolderDialog(event)">📁 New Folder</button>
     <button class="btn" onclick="document.getElementById('fileInput').click()">📄 Upload File</button>
     <button class="btn" onclick="goBack()" id="backBtn" style="display:none;">⬅ Back</button>
     <input type="file" id="fileInput" multiple style="display:none;">
@@ -216,58 +220,7 @@
   </div>
 
 <script>
-  // ======= PASSWORD SECTION =======
   const PASS_KEY = "eduDocsPassword";
-  function showPasswordDialog() {
-    let savedPass = localStorage.getItem(PASS_KEY);
-    let dialogBox = document.getElementById("passwordDialogBox");
-    if (!savedPass) {
-      dialogBox.innerHTML = `
-        <h3 style="margin-bottom:0;">Set Your Password</h3>
-        <p style="font-size:0.97rem;margin-bottom:9px;color:#333;">First time setup. Choose a password for your documents.</p>
-        <input type="password" id="newPassword" placeholder="Enter password">
-        <input type="password" id="confirmPassword" placeholder="Confirm password">
-        <button class="btn" onclick="setPassword()" style="margin-top:8px;">Set Password</button>
-        <div id="passMsg"></div>
-      `;
-    } else {
-      dialogBox.innerHTML = `
-        <h3 style="margin-bottom:0;">Enter Password</h3>
-        <p style="font-size:0.97rem;margin-bottom:9px;color:#333;">Unlock your education documents.</p>
-        <input type="password" id="passwordInput" placeholder="Enter password">
-        <button class="btn" onclick="checkPassword()" style="margin-top:8px;">Unlock</button>
-        <div id="passMsg"></div>
-      `;
-    }
-    document.getElementById("passwordDialog").style.display = "flex";
-  }
-  function setPassword() {
-    let p1 = document.getElementById("newPassword").value;
-    let p2 = document.getElementById("confirmPassword").value;
-    let msg = document.getElementById("passMsg");
-    if (!p1 || !p2) { msg.innerText = "Please enter password in both fields!"; return;}
-    if (p1.length < 4) { msg.innerText = "Password must be at least 4 characters."; return;}
-    if (p1 !== p2) { msg.innerText = "Passwords do not match!"; return;}
-    localStorage.setItem(PASS_KEY, p1);
-    unlockAndShow();
-  }
-  function checkPassword() {
-    let inputPass = document.getElementById("passwordInput").value;
-    let savedPass = localStorage.getItem(PASS_KEY);
-    if (inputPass === savedPass) {
-      unlockAndShow();
-    } else {
-      document.getElementById("passMsg").innerText = "Incorrect password. Try again!";
-    }
-  }
-  function unlockAndShow() {
-    document.getElementById("passwordDialog").style.display = "none";
-    container.style.display = "grid";
-    document.querySelector(".toolbar").style.display = "flex";
-    render();
-  }
-
-  // ======= DOCUMENT SECTION =======
   let data = JSON.parse(localStorage.getItem("eduDocs")) || { folders: [] };
   let currentFolder = null;
   let editIndex = null;
@@ -277,12 +230,60 @@
 
   function saveData() { localStorage.setItem("eduDocs", JSON.stringify(data)); }
 
+  function showPasswordDialog() {
+    let savedPass = localStorage.getItem(PASS_KEY);
+    let dialogBox = document.getElementById("passwordDialogBox");
+    if (!savedPass) {
+      dialogBox.innerHTML = `
+        <h3>Set Your Password</h3>
+        <p style="font-size:0.97rem;">First time setup. Choose a password.</p>
+        <input type="password" id="newPassword" placeholder="Enter password">
+        <input type="password" id="confirmPassword" placeholder="Confirm password">
+        <button class="btn" onclick="setPassword()">Set Password</button>
+        <div id="passMsg"></div>`;
+    } else {
+      dialogBox.innerHTML = `
+        <h3>Enter Password</h3>
+        <p style="font-size:0.97rem;">Unlock your documents.</p>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button class="btn" onclick="checkPassword()">Unlock</button>
+        <div id="passMsg"></div>`;
+    }
+    document.getElementById("passwordDialog").style.display = "flex";
+  }
+
+  function setPassword() {
+    let p1 = document.getElementById("newPassword").value;
+    let p2 = document.getElementById("confirmPassword").value;
+    let msg = document.getElementById("passMsg");
+    if (!p1 || !p2) { msg.innerText = "Please enter password in both fields!"; return; }
+    if (p1.length < 4) { msg.innerText = "Password must be at least 4 characters."; return; }
+    if (p1 !== p2) { msg.innerText = "Passwords do not match!"; return; }
+    localStorage.setItem(PASS_KEY, p1);
+    unlockAndShow();
+  }
+
+  function checkPassword() {
+    let inputPass = document.getElementById("passwordInput").value;
+    let savedPass = localStorage.getItem(PASS_KEY);
+    if (inputPass === savedPass) {
+      unlockAndShow();
+    } else {
+      document.getElementById("passMsg").innerText = "Incorrect password. Try again!";
+    }
+  }
+
+  function unlockAndShow() {
+    document.getElementById("passwordDialog").style.display = "none";
+    container.style.display = "grid";
+    document.querySelector(".toolbar").style.display = "flex";
+    render();
+  }
+
   function render() {
     container.innerHTML = "";
     backBtn.style.display = currentFolder ? "inline-block" : "none";
-
     if (!currentFolder) {
-      // Show Folders
       data.folders.forEach((folder, i) => {
         let card = document.createElement("div");
         card.className = "card";
@@ -295,7 +296,6 @@
         container.appendChild(card);
       });
     } else {
-      // Show Files
       currentFolder.files.forEach((file, i) => {
         let card = document.createElement("div");
         card.className = "card";
@@ -323,12 +323,14 @@
     render();
   }
 
-  function openFolderDialog() {
+  function openFolderDialog(event) {
+    if (event) event.stopPropagation();
     document.getElementById("folderDialogTitle").innerText = "Create New Folder";
     document.getElementById("folderName").value = "";
     editIndex = null;
-    document.getElementById("folderDialog").style.display = "flex";
-    setTimeout(function() { document.getElementById("folderName").focus(); }, 100);
+    let dialog = document.getElementById("folderDialog");
+    dialog.style.display = "flex";
+    setTimeout(() => document.getElementById("folderName").focus(), 100);
   }
 
   function closeFolderDialog() {
@@ -354,7 +356,7 @@
     document.getElementById("folderDialogTitle").innerText = "Edit Folder Name";
     document.getElementById("folderName").value = data.folders[index].name;
     document.getElementById("folderDialog").style.display = "flex";
-    setTimeout(function() { document.getElementById("folderName").focus(); }, 100);
+    setTimeout(() => document.getElementById("folderName").focus(), 100);
   }
 
   function deleteFolder(event, index) {
@@ -409,8 +411,8 @@
     return new Blob([u8arr], {type:mime});
   }
 
-  // Show password dialog on load
   showPasswordDialog();
 </script>
 </body>
 </html>
+
