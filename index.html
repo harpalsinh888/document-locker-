@@ -2,417 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>📚 My Education Documents</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📂 Folder Manager</title>
   <style>
-    :root {
-      --primary: #4a6cf7;
-      --accent: #2ed8a7;
-      --error: #f85a40;
-      --glass: rgba(255,255,255,0.7);
-      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-      --card-radius: 18px;
-      --card-blur: 12px;
-      --transition: 0.20s;
-    }
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #e6eeff 0%, #c7eaff 100%);
       margin: 0;
-      padding: 0;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #333;
     }
     header {
-      background: linear-gradient(90deg, var(--primary), var(--accent));
+      background: #4a90e2;
       color: white;
-      padding: 32px 0 26px 0;
+      padding: 15px;
       text-align: center;
-      font-size: 2.2rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      box-shadow: var(--shadow);
-      border-bottom-left-radius: 32px;
-      border-bottom-right-radius: 32px;
-      margin-bottom: 8px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      font-size: 1.5em;
     }
     .container {
-      padding: 28px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 26px;
+      padding: 20px;
     }
-    .card {
-      background: var(--glass);
-      backdrop-filter: blur(var(--card-blur));
-      border-radius: var(--card-radius);
-      padding: 24px 14px 16px 14px;
-      box-shadow: var(--shadow);
-      transition: transform var(--transition), box-shadow var(--transition);
-      text-align: center;
-      position: relative;
-      border: 2px solid #e3ebff;
-      margin-bottom: 0;
-    }
-    .card:hover {
-      transform: scale(1.045);
-      box-shadow: 0 12px 24px 0 rgba(80, 120, 255, 0.23);
-      border-color: var(--primary);
-    }
-    .card img {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 10px;
-      filter: drop-shadow(0 2px 8px rgba(74,108,247,0.10));
-      border-radius: 9px;
-      background: #f3f6fb;
-    }
-    .card h3 {
-      margin: 0;
-      font-size: 1.08rem;
-      color: #333;
-      font-weight: 600;
-      word-break: break-word;
-      letter-spacing: 0.5px;
-    }
-    .edit-btn, .delete-btn {
-      position: absolute;
-      top: 12px;
-      background: var(--primary);
-      border: none;
+    button {
+      background: #4a90e2;
       color: white;
-      padding: 6px 10px;
-      font-size: 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(74,108,247,0.14);
-      transition: background var(--transition), transform var(--transition);
-      z-index: 2;
-    }
-    .edit-btn { right: 54px; }
-    .delete-btn { right: 14px; background: var(--error); }
-    .edit-btn:hover { background: #3651c9; transform: scale(1.05); }
-    .delete-btn:hover { background: #d32f2f; transform: scale(1.09); }
-    .toolbar {
-      text-align: center;
-      margin: 18px 0 8px 0;
-      padding: 0 10px;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .btn {
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      color: #fff;
       border: none;
-      padding: 14px 22px;
-      border-radius: 12px;
+      padding: 10px 15px;
+      font-size: 1em;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(74,108,247,0.12);
-      margin: 0;
-      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
-      letter-spacing: 1px;
     }
-    .btn:hover {
-      background: linear-gradient(90deg, var(--accent), var(--primary));
-      box-shadow: 0 4px 18px rgba(46,216,167,0.13);
-      transform: scale(1.08);
+    button:hover {
+      background: #357ab7;
     }
+    .folder-list {
+      margin-top: 20px;
+    }
+    .folder-item {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Dialog */
     .dialog {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(74,108,247,0.15);
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
       justify-content: center;
       align-items: center;
-      z-index: 9999;
-      transition: background var(--transition);
       pointer-events: none;
+      z-index: 1000;
     }
-    .dialog[style*="display: flex"] {
-      pointer-events: auto;
-    }
-    .dialog-box {
-      background: var(--glass);
-      backdrop-filter: blur(18px);
-      padding: 32px 18px 22px 18px;
-      border-radius: 18px;
-      width: 330px;
-      max-width: 92vw;
+    .dialog-content {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
       text-align: center;
-      box-shadow: var(--shadow);
-      border: 2px solid #e3ebff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
+      pointer-events: auto;
+      animation: popUp 0.3s ease;
     }
-    .dialog-box input {
-      width: 93%;
+    @keyframes popUp {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    input[type="text"] {
+      width: 90%;
       padding: 10px;
-      margin: 12px 0 8px 0;
-      border: 1.7px solid #c7eaff;
-      border-radius: 8px;
-      font-size: 1rem;
-      background: #f9fbff;
-      transition: border var(--transition);
-    }
-    .dialog-box input:focus {
-      border: 2.2px solid var(--primary);
-      outline: none;
-      background: #f3f6fb;
-    }
-    #passMsg {
-      color: var(--error);
-      font-size: 1rem;
-      margin-top: 10px;
-      min-height: 18px;
-    }
-    @media (max-width: 900px) {
-      .container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 14px; gap: 14px; }
-      header { font-size: 1.35rem; border-radius: 0; padding: 18px 0; }
-      .dialog-box { width: 98vw; padding: 14px; }
-      .card { padding: 14px 6px 10px 6px; }
-      .toolbar { flex-direction: column; gap: 10px; }
-      .btn { padding: 10px 14px; border-radius: 9px; }
-    }
-    @media (max-width: 600px) {
-      header { font-size: 1.15rem; border-radius: 0; padding: 12px 0; }
-      .container { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 6px; gap: 8px; }
-      .dialog-box { width: 99vw; padding: 8px; }
-      .card { padding: 10px 3px 7px 3px; }
-      .toolbar { flex-direction: column; gap: 7px; }
-      .btn { padding: 8px 10px; border-radius: 8px; font-size: 0.96rem; }
-      .card img { width: 46px; height: 46px; }
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
     }
   </style>
 </head>
 <body>
-  <!-- Password Dialog -->
-  <div class="dialog" id="passwordDialog" style="display:flex;">
-    <div class="dialog-box" id="passwordDialogBox"></div>
+  <header>📂 My Folders</header>
+  <div class="container">
+    <button onclick="openFolderDialog()">+ New Folder</button>
+    <div class="folder-list" id="folderList"></div>
   </div>
 
-  <header>📚 My Education Documents</header>
-
-  <div class="toolbar" style="display:none;">
-    <button class="btn" onclick="openFolderDialog(event)">📁 New Folder</button>
-    <button class="btn" onclick="document.getElementById('fileInput').click()">📄 Upload File</button>
-    <button class="btn" onclick="goBack()" id="backBtn" style="display:none;">⬅ Back</button>
-    <input type="file" id="fileInput" multiple style="display:none;">
-  </div>
-
-  <div class="container" id="container" style="display:none;"></div>
-
-  <!-- Folder Dialog -->
+  <!-- Dialog -->
   <div class="dialog" id="folderDialog">
-    <div class="dialog-box">
-      <h3 id="folderDialogTitle">Create New Folder</h3>
-      <input type="text" id="folderName" placeholder="Enter folder name" autocomplete="off" autocapitalize="none" style="font-size:1rem; padding:10px;">
-      <button class="btn" style="margin-top:10px;" onclick="saveFolder()">Save</button>
-      <button class="btn" style="background:#aaa;color:#222;margin-top:8px;" onclick="closeFolderDialog()">Cancel</button>
+    <div class="dialog-content">
+      <h3>Create New Folder</h3>
+      <input type="text" id="folderName" placeholder="Enter folder name">
+      <div>
+        <button onclick="createFolder()">Create</button>
+        <button onclick="closeFolderDialog()">Cancel</button>
+      </div>
     </div>
   </div>
 
-<script>
-  const PASS_KEY = "eduDocsPassword";
-  let data = JSON.parse(localStorage.getItem("eduDocs")) || { folders: [] };
-  let currentFolder = null;
-  let editIndex = null;
-  const container = document.getElementById("container");
-  const fileInput = document.getElementById("fileInput");
-  const backBtn = document.getElementById("backBtn");
+  <script>
+    let folders = [];
 
-  function saveData() { localStorage.setItem("eduDocs", JSON.stringify(data)); }
-
-  function showPasswordDialog() {
-    let savedPass = localStorage.getItem(PASS_KEY);
-    let dialogBox = document.getElementById("passwordDialogBox");
-    if (!savedPass) {
-      dialogBox.innerHTML = `
-        <h3>Set Your Password</h3>
-        <p style="font-size:0.97rem;">First time setup. Choose a password.</p>
-        <input type="password" id="newPassword" placeholder="Enter password">
-        <input type="password" id="confirmPassword" placeholder="Confirm password">
-        <button class="btn" onclick="setPassword()">Set Password</button>
-        <div id="passMsg"></div>`;
-    } else {
-      dialogBox.innerHTML = `
-        <h3>Enter Password</h3>
-        <p style="font-size:0.97rem;">Unlock your documents.</p>
-        <input type="password" id="passwordInput" placeholder="Enter password">
-        <button class="btn" onclick="checkPassword()">Unlock</button>
-        <div id="passMsg"></div>`;
+    function openFolderDialog() {
+      const dialog = document.getElementById('folderDialog');
+      dialog.style.display = 'flex';
+      dialog.style.pointerEvents = 'auto';
+      setTimeout(() => document.getElementById('folderName').focus(), 100);
     }
-    document.getElementById("passwordDialog").style.display = "flex";
-  }
 
-  function setPassword() {
-    let p1 = document.getElementById("newPassword").value;
-    let p2 = document.getElementById("confirmPassword").value;
-    let msg = document.getElementById("passMsg");
-    if (!p1 || !p2) { msg.innerText = "Please enter password in both fields!"; return; }
-    if (p1.length < 4) { msg.innerText = "Password must be at least 4 characters."; return; }
-    if (p1 !== p2) { msg.innerText = "Passwords do not match!"; return; }
-    localStorage.setItem(PASS_KEY, p1);
-    unlockAndShow();
-  }
-
-  function checkPassword() {
-    let inputPass = document.getElementById("passwordInput").value;
-    let savedPass = localStorage.getItem(PASS_KEY);
-    if (inputPass === savedPass) {
-      unlockAndShow();
-    } else {
-      document.getElementById("passMsg").innerText = "Incorrect password. Try again!";
+    function closeFolderDialog() {
+      const dialog = document.getElementById('folderDialog');
+      dialog.style.display = 'none';
+      dialog.style.pointerEvents = 'none';
     }
-  }
 
-  function unlockAndShow() {
-    document.getElementById("passwordDialog").style.display = "none";
-    container.style.display = "grid";
-    document.querySelector(".toolbar").style.display = "flex";
-    render();
-  }
+    function createFolder() {
+      const name = document.getElementById('folderName').value.trim();
+      if (!name) {
+        alert("Please enter folder name!");
+        return;
+      }
+      folders.push(name);
+      document.getElementById('folderName').value = '';
+      closeFolderDialog();
+      renderFolders();
+    }
 
-  function render() {
-    container.innerHTML = "";
-    backBtn.style.display = currentFolder ? "inline-block" : "none";
-    if (!currentFolder) {
-      data.folders.forEach((folder, i) => {
-        let card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <button class="edit-btn" onclick="editFolder(event, ${i})">Edit</button>
-          <button class="delete-btn" onclick="deleteFolder(event, ${i})">Delete</button>
-          <img src="https://img.icons8.com/color/96/folder-invoices.png">
-          <h3>${folder.name}</h3>`;
-        card.onclick = () => openFolder(i);
-        container.appendChild(card);
-      });
-    } else {
-      currentFolder.files.forEach((file, i) => {
-        let card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <button class="delete-btn" onclick="deleteFile(event, ${i})">Delete</button>
-          <img src="${getIcon(file.name)}"><h3>${file.name}</h3>`;
-        card.onclick = () => {
-          let blob = dataURLtoBlob(file.file);
-          let url = URL.createObjectURL(blob);
-          window.open(url, "_blank");
-        };
-        container.appendChild(card);
+    function renderFolders() {
+      const list = document.getElementById('folderList');
+      list.innerHTML = '';
+      folders.forEach((folder, index) => {
+        list.innerHTML += `
+          <div class="folder-item">
+            <span>📁 ${folder}</span>
+            <button onclick="deleteFolder(${index})">Delete</button>
+          </div>
+        `;
       });
     }
-  }
 
-  function openFolder(index) {
-    currentFolder = data.folders[index];
-    currentFolder.index = index;
-    render();
-  }
-
-  function goBack() {
-    currentFolder = null;
-    render();
-  }
-
-  function openFolderDialog(event) {
-    if (event) event.stopPropagation();
-    document.getElementById("folderDialogTitle").innerText = "Create New Folder";
-    document.getElementById("folderName").value = "";
-    editIndex = null;
-    let dialog = document.getElementById("folderDialog");
-    dialog.style.display = "flex";
-    setTimeout(() => document.getElementById("folderName").focus(), 100);
-  }
-
-  function closeFolderDialog() {
-    document.getElementById("folderDialog").style.display = "none";
-  }
-
-  function saveFolder() {
-    let name = document.getElementById("folderName").value.trim();
-    if (!name) return alert("Please enter folder name!");
-    if (editIndex !== null) {
-      data.folders[editIndex].name = name;
-    } else {
-      data.folders.push({ name, files: [] });
+    function deleteFolder(index) {
+      if (confirm("Delete this folder?")) {
+        folders.splice(index, 1);
+        renderFolders();
+      }
     }
-    saveData();
-    closeFolderDialog();
-    render();
-  }
-
-  function editFolder(event, index) {
-    event.stopPropagation();
-    editIndex = index;
-    document.getElementById("folderDialogTitle").innerText = "Edit Folder Name";
-    document.getElementById("folderName").value = data.folders[index].name;
-    document.getElementById("folderDialog").style.display = "flex";
-    setTimeout(() => document.getElementById("folderName").focus(), 100);
-  }
-
-  function deleteFolder(event, index) {
-    event.stopPropagation();
-    if (confirm("Delete this folder and all its files?")) {
-      data.folders.splice(index, 1);
-      saveData();
-      render();
-    }
-  }
-
-  function deleteFile(event, index) {
-    event.stopPropagation();
-    if (confirm("Delete this file?")) {
-      currentFolder.files.splice(index, 1);
-      saveData();
-      render();
-    }
-  }
-
-  fileInput.addEventListener("change", function(e) {
-    if (!currentFolder) {
-      alert("Select a folder first!");
-      fileInput.value = "";
-      return;
-    }
-    let files = e.target.files;
-    for (let file of files) {
-      let reader = new FileReader();
-      reader.onload = function(event) {
-        currentFolder.files.push({ name: file.name, file: event.target.result });
-        saveData();
-        render();
-      };
-      reader.readAsDataURL(file);
-    }
-    fileInput.value = "";
-  });
-
-  function getIcon(name) {
-    if (name.endsWith(".pdf")) return "https://img.icons8.com/color/96/pdf.png";
-    if (name.endsWith(".ppt") || name.endsWith(".pptx")) return "https://img.icons8.com/color/96/ms-powerpoint.png";
-    if (name.endsWith(".doc") || name.endsWith(".docx")) return "https://img.icons8.com/color/96/ms-word.png";
-    if (name.match(/\.(jpg|jpeg|png|gif)$/)) return "https://img.icons8.com/color/96/image.png";
-    return "https://img.icons8.com/color/96/file.png";
-  }
-
-  function dataURLtoBlob(dataURL) {
-    let arr = dataURL.split(','), mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while(n--) u8arr[n] = bstr.charCodeAt(n);
-    return new Blob([u8arr], {type:mime});
-  }
-
-  showPasswordDialog();
-</script>
+  </script>
 </body>
 </html>
+
 
