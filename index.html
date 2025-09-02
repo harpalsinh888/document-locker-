@@ -1,416 +1,305 @@
 <!DOCTYPE html>
-<html lang="gu">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>📚 My Education Docs — Locked</title>
+  <meta charset="UTF-8">
+  <title>📁 My Documents</title>
   <style>
-    :root{
-      --primary:#4a6cf7; --accent:#2ed8a7; --error:#f85a40;
-      --glass: rgba(255,255,255,0.85);
-      --shadow: 0 8px 30px rgba(31,38,135,0.12);
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
     }
-    *{box-sizing:border-box}
-    body{
-      font-family: "Segoe UI", Arial, sans-serif;
-      margin:0; min-height:100vh;
-      background: linear-gradient(135deg,#e6eeff 0,#c7eaff 100%);
-      color:#222;
-      display:flex; flex-direction:column; align-items:stretch;
+
+    body {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
     }
-    header{
-      background: linear-gradient(90deg,var(--primary),var(--accent));
-      color:#fff; padding:18px; text-align:center;
-      font-weight:700; font-size:20px; letter-spacing:1px;
-      display:flex; gap:12px; align-items:center; justify-content:center;
-      position:sticky; top:0; z-index:50;
+
+    .app-container {
+      width: 95%;
+      max-width: 500px;
+      background: #ffffff10;
+      backdrop-filter: blur(15px);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease-in-out;
     }
-    #lockBtn{
-      position:absolute; right:16px; top:12px;
-      background:transparent; border:2px solid rgba(255,255,255,0.2);
-      color:#fff; padding:8px 10px; border-radius:8px; cursor:pointer;
-      font-weight:600;
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
     }
-    .toolbar{ display:flex; gap:12px; justify-content:center; padding:16px; flex-wrap:wrap; }
-    .btn{
-      background:linear-gradient(90deg,var(--primary),var(--accent));
-      color:#fff; border:none; padding:10px 16px; border-radius:10px;
-      font-weight:700; cursor:pointer; box-shadow:var(--shadow);
+
+    .folder-list {
+      margin: 15px 0;
     }
-    .container{ padding:18px; display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
-    .card{
-      background:var(--glass); padding:16px; border-radius:14px; text-align:center;
-      box-shadow:var(--shadow); border:1px solid rgba(227,235,255,0.7);
-      position:relative; cursor:pointer;
+
+    .folder-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff20;
+      padding: 12px 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      transition: transform 0.2s ease;
     }
-    .card img{ width:56px; height:56px; margin-bottom:10px; }
-    .card h3{ margin:0; font-size:1rem; word-break:break-word; color:#123; }
-    .small{ font-size:0.9rem; color:#555; margin-top:6px; }
-    /* dialogs */
-    .dialog{
-      display:none; position:fixed; inset:0; background:rgba(10,20,60,0.28);
-      justify-content:center; align-items:center; z-index:999;
-      pointer-events:none;
+
+    .folder-item:hover {
+      transform: scale(1.02);
     }
-    .dialog.show{ display:flex; pointer-events:auto; }
-    .dialog-box{
-      width:92%; max-width:420px; background:var(--glass); padding:20px; border-radius:12px;
-      box-shadow:var(--shadow); border:1px solid rgba(227,235,255,0.8);
+
+    .folder-name {
+      font-size: 1.1rem;
     }
-    .dialog-box h3{ margin:4px 0 8px 0; text-align:left; }
-    .dialog-box input{ width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #d6e6ff; font-size:1rem; }
-    .row{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
-    .danger{ background:var(--error); color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
-    .muted{ background:#aaa; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
-    .footer-note{ text-align:center; color:#444; padding:10px 12px; font-size:0.95rem; }
-    @media(max-width:600px){
-      .container{ grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; padding:12px; }
-      header{ font-size:18px; padding:14px; }
-      #lockBtn{ right:10px; top:10px; padding:6px 8px; }
+
+    .folder-actions button {
+      background: none;
+      border: none;
+      color: #fff;
+      margin-left: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .folder-actions button:hover {
+      color: #ffd700;
+    }
+
+    .add-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #ff6f61;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .add-btn:hover {
+      background: #ff4b3e;
+    }
+
+    /* Dialog Style */
+    .dialog {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .dialog-content {
+      background: #ffffff;
+      color: #333;
+      padding: 20px;
+      border-radius: 15px;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      animation: slideUp 0.4s ease;
+    }
+
+    .dialog-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .dialog-buttons button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      margin: 5px;
+      cursor: pointer;
+      background: #4facfe;
+      color: #fff;
+      transition: background 0.3s;
+    }
+
+    .dialog-buttons button:hover {
+      background: #007bff;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    @keyframes slideUp {
+      from {transform: translateY(50px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+
+    /* Lock Screen */
+    #lockScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 2000;
+    }
+
+    #lockScreen input {
+      width: 60%;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    #unlockBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 12px;
+      background: #ff6f61;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #unlockBtn:hover {
+      background: #ff4b3e;
     }
   </style>
 </head>
 <body>
-  <header>
-    📚 My Education Documents
-    <button id="lockBtn" title="Lock" style="display:none;" onclick="lockApp()">🔒 Lock</button>
-  </header>
-
-  <div class="toolbar" id="toolbar" style="display:none;">
-    <button class="btn" onclick="openFolderDialog(event)">📁 New Folder</button>
-    <button class="btn" onclick="document.getElementById('fileInput').click()">📄 Upload File</button>
-    <input type="file" id="fileInput" multiple style="display:none;">
+  <!-- Lock Screen -->
+  <div id="lockScreen">
+    <h1>🔒 Enter PIN</h1>
+    <input type="password" id="pinInput" maxlength="4" placeholder="4-digit PIN">
+    <button id="unlockBtn">Unlock</button>
   </div>
 
-  <div class="container" id="container" style="display:none;"></div>
+  <!-- Main App -->
+  <div class="app-container" style="display:none;">
+    <h1>📁 My Documents</h1>
+    <div class="folder-list" id="folderList"></div>
+    <button class="add-btn" onclick="openFolderDialog()">+ Create Folder</button>
+  </div>
 
   <!-- Folder Dialog -->
   <div class="dialog" id="folderDialog">
-    <div class="dialog-box">
-      <h3 id="folderDialogTitle">Create New Folder</h3>
-      <input type="text" id="folderName" placeholder="Enter folder name" autocomplete="off" />
-      <div class="row">
-        <button class="muted" onclick="closeFolderDialog()">Cancel</button>
-        <button class="btn" onclick="saveFolder()">Save</button>
+    <div class="dialog-content">
+      <h3 id="folderDialogTitle">Create Folder</h3>
+      <input type="text" id="folderName" placeholder="Enter folder name">
+      <div class="dialog-buttons">
+        <button onclick="saveFolder()">Save</button>
+        <button onclick="closeFolderDialog()">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Password Dialog (shown on load) -->
-  <div class="dialog show" id="passwordDialog">
-    <div class="dialog-box" id="passwordDialogBox">
-      <!-- content injected by JS -->
-    </div>
-  </div>
+  <script>
+    const pinCode = "1234"; // Set PIN
+    const lockScreen = document.getElementById("lockScreen");
+    const appContainer = document.querySelector(".app-container");
+    const pinInput = document.getElementById("pinInput");
+    const unlockBtn = document.getElementById("unlockBtn");
 
-<script>
-  // ===== constants & keys =====
-  const PASS_KEY = "eduDocsPassword_v1";
-  const DATA_KEY = "eduDocs_v1";
-
-  // ===== app state =====
-  let data = { folders: [] }; // { folders: [ { name, files: [ {name, fileDataURL} ] } ] }
-  let currentFolder = null;
-  let editIndex = null;
-
-  // ===== dom refs =====
-  const container = document.getElementById("container");
-  const toolbar = document.getElementById("toolbar");
-  const lockBtn = document.getElementById("lockBtn");
-  const fileInput = document.getElementById("fileInput");
-
-  // ===== utilities =====
-  function saveData(){ localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
-  function loadData(){ const d = localStorage.getItem(DATA_KEY); data = d ? JSON.parse(d) : { folders: [] }; }
-
-  // ===== password dialog render =====
-  function showPasswordDialog() {
-    const saved = localStorage.getItem(PASS_KEY);
-    const box = document.getElementById("passwordDialogBox");
-    if(!saved){
-      box.innerHTML = `
-        <h3>Set Password</h3>
-        <p style="margin:0 0 8px 0;color:#333;">First time — set a password to protect your documents.</p>
-        <input id="newPass" type="password" placeholder="Enter new password" />
-        <input id="confirmPass" type="password" placeholder="Confirm password" />
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-          <button class="muted" onclick="forgotPassword()">Forgot</button>
-          <button class="btn" onclick="setPassword()">Set</button>
-        </div>
-        <div id="passMsg" style="color:var(--error);margin-top:8px;min-height:18px;"></div>
-      `;
-    } else {
-      box.innerHTML = `
-        <h3>Enter Password</h3>
-        <p style="margin:0 0 8px 0;color:#333;">Unlock your documents.</p>
-        <input id="enterPass" type="password" placeholder="Enter password" />
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-          <button class="muted" onclick="showChangePass()">Change</button>
-          <button class="btn" onclick="checkPassword()">Unlock</button>
-        </div>
-        <div id="passMsg" style="color:var(--error);margin-top:8px;min-height:18px;"></div>
-      `;
-    }
-    document.getElementById("passwordDialog").classList.add("show");
-  }
-
-  function hidePasswordDialog(){ document.getElementById("passwordDialog").classList.remove("show"); }
-
-  // ===== password actions =====
-  function setPassword(){
-    const p1 = document.getElementById("newPass").value || "";
-    const p2 = document.getElementById("confirmPass").value || "";
-    const msg = document.getElementById("passMsg");
-    msg.textContent = "";
-    if(!p1 || !p2){ msg.textContent = "બન્ને ફેરવામાં password નાખો."; return; }
-    if(p1.length < 4){ msg.textContent = "Password ઓછામાં ઓછું 4 અક્ષર હોવું જોઈએ."; return; }
-    if(p1 !== p2){ msg.textContent = "Passwords મેળ ખાતા નથી."; return; }
-    localStorage.setItem(PASS_KEY, p1);
-    unlockAndShow();
-  }
-
-  function checkPassword(){
-    const entered = document.getElementById("enterPass").value || "";
-    const saved = localStorage.getItem(PASS_KEY);
-    const msg = document.getElementById("passMsg");
-    msg.textContent = "";
-    if(entered === saved){ unlockAndShow(); }
-    else { msg.textContent = "Password ખોટો છે. ફરી કોશિશ કરો."; }
-  }
-
-  function showChangePass(){
-    // show simple change pass UI (requires old pass)
-    const box = document.getElementById("passwordDialogBox");
-    box.innerHTML = `
-      <h3>Change Password</h3>
-      <input id="oldPass" type="password" placeholder="Current password" />
-      <input id="newPass2" type="password" placeholder="New password" />
-      <input id="confirmPass2" type="password" placeholder="Confirm new password" />
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-        <button class="muted" onclick="showPasswordDialog()">Back</button>
-        <button class="btn" onclick="changePassword()">Change</button>
-      </div>
-      <div id="passMsg" style="color:var(--error);margin-top:8px;min-height:18px;"></div>
-    `;
-  }
-
-  function changePassword(){
-    const oldP = document.getElementById("oldPass").value || "";
-    const n1 = document.getElementById("newPass2").value || "";
-    const n2 = document.getElementById("confirmPass2").value || "";
-    const saved = localStorage.getItem(PASS_KEY);
-    const msg = document.getElementById("passMsg");
-    msg.textContent = "";
-    if(oldP !== saved){ msg.textContent = "હાલનું password બદલવા માટે સાચું દાખલ કરો."; return; }
-    if(n1.length < 4){ msg.textContent = "નવું password ઓછામાં ઓછું 4 અક્ષર હોવું જોઈએ."; return; }
-    if(n1 !== n2){ msg.textContent = "નવું password અને confirm મેળ ખાતા નથી."; return; }
-    localStorage.setItem(PASS_KEY, n1);
-    unlockAndShow();
-  }
-
-  function forgotPassword(){
-    // we cannot recover stored password — explain and offer reset (clears data)
-    const ok = confirm("Password યાદ નથી તો આપણે તમામ ડેટા (folders/files) રિસેટ કરી શકીએ છીએ.\nતમારું ડેટા સાફ થાય છે. ચાલુ રાખવા છે?");
-    if(!ok) return;
-    localStorage.removeItem(PASS_KEY);
-    localStorage.removeItem(DATA_KEY);
-    data = { folders: [] };
-    saveData();
-    showPasswordDialog();
-  }
-
-  // ===== unlock =====
-  function unlockAndShow(){
-    hidePasswordDialog();
-    loadData();
-    render();
-    container.style.display = "grid";
-    toolbar.style.display = "flex";
-    lockBtn.style.display = "inline-block";
-  }
-
-  function lockApp(){
-    // hide UI and show password dialog
-    container.style.display = "none";
-    toolbar.style.display = "none";
-    lockBtn.style.display = "none";
-    showPasswordDialog();
-  }
-
-  // ===== rendering folders/files =====
-  function render(){
-    container.innerHTML = "";
-    document.getElementById("folderName")?.value && (document.getElementById("folderName").value = "");
-    // if top level, show folders
-    if(!currentFolder){
-      data.folders.forEach((folder, i) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <button style="position:absolute;right:12px;top:10px;background:var(--error);color:#fff;border:none;padding:6px 8px;border-radius:8px;cursor:pointer;" onclick="deleteFolder(event, ${i})">Delete</button>
-          <img src="https://img.icons8.com/color/96/folder-invoices.png" alt="folder"/>
-          <h3>${escapeHtml(folder.name)}</h3>
-          <div class="small">Files: ${folder.files.length}</div>
-        `;
-        card.addEventListener("click", () => openFolder(i));
-        container.appendChild(card);
-      });
-      // if no folders, show friendly message
-      if(data.folders.length === 0){
-        const msg = document.createElement("div");
-        msg.style.gridColumn = "1/-1";
-        msg.style.background = "transparent";
-        msg.style.textAlign = "center";
-        msg.style.padding = "14px";
-        msg.innerHTML = `<div class="small">કોઈ ફોલ્ડર નથી. 'New Folder' થી બનાવો.</div>`;
-        container.appendChild(msg);
+    unlockBtn.addEventListener("click", () => {
+      if (pinInput.value === pinCode) {
+        lockScreen.style.display = "none";
+        appContainer.style.display = "block";
+      } else {
+        alert("Incorrect PIN!");
       }
-    } else {
-      // inside folder — show files
-      currentFolder.files.forEach((file, i) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <button style="position:absolute;right:12px;top:10px;background:var(--error);color:#fff;border:none;padding:6px 8px;border-radius:8px;cursor:pointer;" onclick="deleteFile(event, ${i})">Delete</button>
-          <img src="${getIcon(file.name)}" alt="file"/>
-          <h3>${escapeHtml(file.name)}</h3>
-        `;
-        card.addEventListener("click", () => {
-          const blob = dataURLtoBlob(file.file);
-          const url = URL.createObjectURL(blob);
-          window.open(url, "_blank");
-        });
-        container.appendChild(card);
-      });
-      // back card
-      const backCard = document.createElement("div");
-      backCard.className = "card";
-      backCard.style.gridColumn = "1/-1";
-      backCard.innerHTML = `<h3 style="font-size:0.98rem;">⬅ Back to folders</h3>`;
-      backCard.addEventListener("click", goBack);
-      container.insertBefore(backCard, container.firstChild);
-    }
-  }
-
-  // ===== folder actions =====
-  function openFolder(index){
-    currentFolder = data.folders[index];
-    currentFolder.index = index;
-    render();
-  }
-
-  function goBack(){
-    currentFolder = null;
-    render();
-  }
-
-  function openFolderDialog(e){
-    if(e) e.stopPropagation();
-    document.getElementById("folderDialog").classList.add("show");
-    document.getElementById("folderDialogTitle").innerText = "Create New Folder";
-    editIndex = null;
-    setTimeout(()=> document.getElementById("folderName").focus(), 120);
-  }
-
-  function closeFolderDialog(){
-    document.getElementById("folderDialog").classList.remove("show");
-    document.getElementById("folderName").value = "";
-  }
-
-  function saveFolder(){
-    const name = document.getElementById("folderName").value.trim();
-    if(!name){ alert("કૃપયા ફોલ્ડરનું નામ દાખલ કરો."); return; }
-    if(editIndex !== null){
-      data.folders[editIndex].name = name;
-      editIndex = null;
-    } else {
-      data.folders.push({ name, files: [] });
-    }
-    saveData();
-    closeFolderDialog();
-    render();
-  }
-
-  function deleteFolder(ev, index){
-    ev.stopPropagation();
-    if(confirm("આ ફોલ્ડર અને તેમાંની ફાઇલો ડિલીટ કરવા ખાતરી છે?")){
-      data.folders.splice(index,1);
-      saveData();
-      render();
-    }
-  }
-
-  // ===== file upload handling =====
-  fileInput.addEventListener("change", function(e){
-    if(!currentFolder){ alert("કૃપયા પહેલા કોઇ ફોલ્ડર ખોલો."); fileInput.value = ""; return; }
-    const files = Array.from(e.target.files || []);
-    if(files.length === 0){ fileInput.value = ""; return; }
-    let loaded = 0;
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = function(evt){
-        currentFolder.files.push({ name: file.name, file: evt.target.result });
-        loaded++;
-        if(loaded === files.length){
-          saveData();
-          render();
-          fileInput.value = "";
-        }
-      };
-      reader.readAsDataURL(file);
     });
-  });
 
-  function deleteFile(ev, index){
-    ev.stopPropagation();
-    if(confirm("આ ફાઇલ ડિલીટ કરવી છે?")){
-      currentFolder.files.splice(index,1);
-      saveData();
-      render();
+    let folders = JSON.parse(localStorage.getItem("folders") || "[]");
+    let editIndex = null;
+
+    function renderFolders() {
+      const folderList = document.getElementById("folderList");
+      folderList.innerHTML = "";
+      folders.forEach((folder, index) => {
+        const div = document.createElement("div");
+        div.className = "folder-item";
+        div.innerHTML = `
+          <span class="folder-name">📁 ${folder}</span>
+          <div class="folder-actions">
+            <button onclick="editFolder(${index})">✏️</button>
+            <button onclick="deleteFolder(${index})">🗑️</button>
+          </div>
+        `;
+        folderList.appendChild(div);
+      });
+      localStorage.setItem("folders", JSON.stringify(folders));
     }
-  }
 
-  // ===== helpers =====
-  function getIcon(name){
-    name = name.toLowerCase();
-    if(name.endsWith(".pdf")) return "https://img.icons8.com/color/96/pdf.png";
-    if(name.endsWith(".ppt")||name.endsWith(".pptx")) return "https://img.icons8.com/color/96/ms-powerpoint.png";
-    if(name.endsWith(".doc")||name.endsWith(".docx")) return "https://img.icons8.com/color/96/ms-word.png";
-    if(name.match(/\.(jpg|jpeg|png|gif)$/)) return "https://img.icons8.com/color/96/image.png";
-    return "https://img.icons8.com/color/96/file.png";
-  }
+    function openFolderDialog() {
+      document.getElementById("folderDialogTitle").innerText = "Create Folder";
+      document.getElementById("folderName").value = "";
+      editIndex = null;
+      document.getElementById("folderDialog").style.display = "flex";
+    }
 
-  function dataURLtoBlob(dataURL){
-    const arr = dataURL.split(','), mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]); let n = bstr.length; const u8 = new Uint8Array(n);
-    while(n--) u8[n] = bstr.charCodeAt(n);
-    return new Blob([u8], { type: mime });
-  }
+    function closeFolderDialog() {
+      document.getElementById("folderDialog").style.display = "none";
+    }
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; });
-  }
+    function saveFolder() {
+      const name = document.getElementById("folderName").value.trim();
+      if (!name) return alert("Enter folder name!");
+      if (editIndex !== null) {
+        folders[editIndex] = name;
+      } else {
+        folders.push(name);
+      }
+      closeFolderDialog();
+      renderFolders();
+    }
 
-  // ===== init =====
-  // show password dialog on load
-  document.addEventListener("DOMContentLoaded", () => {
-    // load data if available (but don't render until unlocked)
-    loadData();
-    showPasswordDialog();
-  });
+    function editFolder(index) {
+      document.getElementById("folderDialogTitle").innerText = "Edit Folder";
+      document.getElementById("folderName").value = folders[index];
+      editIndex = index;
+      document.getElementById("folderDialog").style.display = "flex";
+    }
 
-  // allow closing folder dialog by tapping outside
-  document.getElementById("folderDialog").addEventListener("click", function(e){
-    if(e.target === this) closeFolderDialog();
-  });
+    function deleteFolder(index) {
+      if (confirm("Delete this folder?")) {
+        folders.splice(index, 1);
+        renderFolders();
+      }
+    }
 
-  // prevent clicks on dialog-box from closing
-  document.querySelectorAll(".dialog-box").forEach(box => {
-    box.addEventListener("click", e => e.stopPropagation());
-  });
-</script>
+    renderFolders();
+  </script>
 </body>
 </html>
+
 
 
 
