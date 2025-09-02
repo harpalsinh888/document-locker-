@@ -150,17 +150,13 @@
 </head>
 <body>
   <header>📚 My Education Documents</header>
-
   <div class="toolbar" id="toolbar" style="display:none;">
     <button class="btn" onclick="openFolderDialog(event)">📁 New Folder</button>
     <button class="btn" onclick="document.getElementById('fileInput').click()">📄 Upload File</button>
     <button class="btn" onclick="lockApp()">🔒 Lock</button>
     <input type="file" id="fileInput" multiple style="display:none;">
   </div>
-
   <div class="container" id="container" style="display:none;"></div>
-
-  <!-- Folder Dialog -->
   <div class="dialog" id="folderDialog">
     <div class="dialog-box">
       <h3 id="folderDialogTitle">Create New Folder</h3>
@@ -171,183 +167,176 @@
       </div>
     </div>
   </div>
-
-  <!-- Password Dialog -->
   <div class="dialog show" id="passwordDialog">
     <div class="dialog-box" id="passwordDialogBox"></div>
   </div>
-
-<script>
-  const PASS_KEY = "eduDocsPassword_v1";
-  const DATA_KEY = "eduDocs_v1";
-  let data = { folders: [] };
-  let currentFolder = null;
-  let editIndex = null;
-
-  const container = document.getElementById("container");
-  const toolbar = document.getElementById("toolbar");
-  const fileInput = document.getElementById("fileInput");
-
-  function saveData(){ localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
-  function loadData(){ const d = localStorage.getItem(DATA_KEY); data = d ? JSON.parse(d) : { folders: [] }; }
-
-  function showPasswordDialog() {
-    const saved = localStorage.getItem(PASS_KEY);
-    const box = document.getElementById("passwordDialogBox");
-    if(!saved){
-      box.innerHTML = `
-        <h3>Set Password</h3>
-        <p style="margin-bottom:8px;">First time — set a password to protect your documents.</p>
-        <input id="newPass" type="password" placeholder="New password" />
-        <input id="confirmPass" type="password" placeholder="Confirm password" />
-        <div class="row">
-          <button class="muted" onclick="forgotPassword()">Forgot</button>
-          <button class="btn" onclick="setPassword()">Set</button>
-        </div>
-        <div id="passMsg" style="color:var(--error);margin-top:8px;"></div>`;
-    } else {
-      box.innerHTML = `
-        <h3>Enter Password</h3>
-        <p style="margin-bottom:8px;">Unlock your documents.</p>
-        <input id="enterPass" type="password" placeholder="Enter password" />
-        <div class="row">
-          <button class="muted" onclick="showChangePass()">Change</button>
-          <button class="btn" onclick="checkPassword()">Unlock</button>
-        </div>
-        <div id="passMsg" style="color:var(--error);margin-top:8px;"></div>`;
-    }
-    document.getElementById("passwordDialog").classList.add("show");
-  }
-  function hidePasswordDialog(){ document.getElementById("passwordDialog").classList.remove("show"); }
-  function setPassword(){
-    const p1 = document.getElementById("newPass").value || "";
-    const p2 = document.getElementById("confirmPass").value || "";
-    const msg = document.getElementById("passMsg");
-    msg.textContent = "";
-    if(!p1 || !p2){ msg.textContent = "Please enter and confirm password."; return; }
-    if(p1.length < 4){ msg.textContent = "Password must be at least 4 characters."; return; }
-    if(p1 !== p2){ msg.textContent = "Passwords do not match."; return; }
-    localStorage.setItem(PASS_KEY, p1); unlockAndShow();
-  }
-  function checkPassword(){
-    const entered = document.getElementById("enterPass").value || "";
-    const saved = localStorage.getItem(PASS_KEY);
-    const msg = document.getElementById("passMsg");
-    msg.textContent = "";
-    if(entered === saved){ unlockAndShow(); } else { msg.textContent = "Incorrect password."; }
-  }
-  function showChangePass(){
-    const box = document.getElementById("passwordDialogBox");
-    box.innerHTML = `
-      <h3>Change Password</h3>
-      <input id="oldPass" type="password" placeholder="Current password" />
-      <input id="newPass2" type="password" placeholder="New password" />
-      <input id="confirmPass2" type="password" placeholder="Confirm new password" />
-      <div class="row">
-        <button class="muted" onclick="showPasswordDialog()">Back</button>
-        <button class="btn" onclick="changePassword()">Change</button>
-      </div>
-      <div id="passMsg" style="color:var(--error);margin-top:8px;"></div>`;
-  }
-  function changePassword(){
-    const oldP = document.getElementById("oldPass").value || "";
-    const n1 = document.getElementById("newPass2").value || "";
-    const n2 = document.getElementById("confirmPass2").value || "";
-    const saved = localStorage.getItem(PASS_KEY);
-    const msg = document.getElementById("passMsg");
-    msg.textContent = "";
-    if(oldP !== saved){ msg.textContent = "Incorrect current password."; return; }
-    if(n1.length < 4){ msg.textContent = "New password must be at least 4 characters."; return; }
-    if(n1 !== n2){ msg.textContent = "Passwords do not match."; return; }
-    localStorage.setItem(PASS_KEY, n1); unlockAndShow();
-  }
-  function forgotPassword(){
-    const ok = confirm("Forgot password? This will reset all your data!");
-    if(!ok) return;
-    localStorage.removeItem(PASS_KEY); localStorage.removeItem(DATA_KEY);
-    data = { folders: [] }; saveData(); showPasswordDialog();
-  }
-  function unlockAndShow(){
-    hidePasswordDialog(); loadData(); render();
-    container.style.display = "grid"; toolbar.style.display = "flex";
-  }
-  function lockApp(){
-    container.style.display = "none"; toolbar.style.display = "none"; showPasswordDialog();
-  }
-
-  function render(){
-    container.innerHTML = "";
-    if(!currentFolder){
-      data.folders.forEach((folder, i) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <button class="delete-btn" onclick="deleteFolder(event,${i})">
-            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/trash--v1.png" alt="delete">
-          </button>
-          <img src="https://img.icons8.com/color/96/folder-invoices.png"/>
-          <h3>${escapeHtml(folder.name)}</h3>
-          <div class="small">Files: ${folder.files.length}</div>`;
-        card.addEventListener("click",()=>openFolder(i)); container.appendChild(card);
-      });
-      if(data.folders.length===0){
-        const msg=document.createElement("div"); msg.style.gridColumn="1/-1"; msg.style.textAlign="center";
-        msg.innerHTML=`<div class="small">No folders yet. Use "New Folder".</div>`; container.appendChild(msg);
+  <script>
+    const PASS_KEY = "eduDocsPassword_v1";
+    const DATA_KEY = "eduDocs_v1";
+    let data = { folders: [] };
+    let currentFolder = null;
+    let editIndex = null;
+    
+    const container = document.getElementById("container");
+    const toolbar = document.getElementById("toolbar");
+    const fileInput = document.getElementById("fileInput");
+    
+    function saveData(){ localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
+    function loadData(){ const d = localStorage.getItem(DATA_KEY); data = d ? JSON.parse(d) : { folders: [] }; }
+    
+    function showPasswordDialog() {
+      const saved = localStorage.getItem(PASS_KEY);
+      const box = document.getElementById("passwordDialogBox");
+      if(!saved){
+        box.innerHTML = `
+          <h3>Set Password</h3>
+          <p style="margin-bottom:8px;">First time — set a password to protect your documents.</p>
+          <input id="newPass" type="password" placeholder="New password" />
+          <input id="confirmPass" type="password" placeholder="Confirm password" />
+          <div class="row">
+            <button class="muted" onclick="forgotPassword()">Forgot</button>
+            <button class="btn" onclick="setPassword()">Set</button>
+          </div>
+          <div id="passMsg" style="color:var(--error);margin-top:8px;"></div>`;
+      } else {
+        box.innerHTML = `
+          <h3>Enter Password</h3>
+          <p style="margin-bottom:8px;">Unlock your documents.</p>
+          <input id="enterPass" type="password" placeholder="Enter password" />
+          <div class="row">
+            <button class="muted" onclick="showChangePass()">Change</button>
+            <button class="btn" onclick="checkPassword()">Unlock</button>
+          </div>
+          <div id="passMsg" style="color:var(--error);margin-top:8px;"></div>`;
       }
-    } else {
-      currentFolder.files.forEach((file,i)=>{
-        const card=document.createElement("div"); card.className="card";
-        card.innerHTML=`
-          <button class="delete-btn" onclick="deleteFile(event,${i})">
-            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/trash--v1.png" alt="delete">
-          </button>
-          <img src="${getIcon(file.name)}"/>
-          <h3>${escapeHtml(file.name)}</h3>`;
-        card.addEventListener("click",()=>{
-          const blob=dataURLtoBlob(file.file);
-          const url=URL.createObjectURL(blob);
-          const a=document.createElement("a");
-          a.href=url; a.download=file.name;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        });
-        container.appendChild(card);
-      });
-      const backCard=document.createElement("div");backCard.className="card";backCard.style.gridColumn="1/-1";
-      backCard.innerHTML=`<h3>⬅ Back to folders</h3>`;backCard.addEventListener("click",goBack);container.insertBefore(backCard,container.firstChild);
+      document.getElementById("passwordDialog").classList.add("show");
     }
-  }
-  function openFolder(i){currentFolder=data.folders[i];currentFolder.index=i;render();}
-  function goBack(){currentFolder=null;render();}
-  function openFolderDialog(e){if(e)e.stopPropagation();document.getElementById("folderDialog").classList.add("show");editIndex=null;setTimeout(()=>document.getElementById("folderName").focus(),100);}
-  function closeFolderDialog(){document.getElementById("folderDialog").classList.remove("show");document.getElementById("folderName").value="";}
-  function saveFolder(){
-    const name=document.getElementById("folderName").value.trim();if(!name){alert("Please enter a folder name.");return;}
-    if(editIndex!==null){data.folders[editIndex].name=name;editIndex=null;}else{data.folders.push({name,files:[]});}
-    saveData();closeFolderDialog();render();
-  }
-  function deleteFolder(ev,i){ev.stopPropagation();if(confirm("Delete this folder and all files?")){data.folders.splice(i,1);saveData();render();}}
-  fileInput.addEventListener("change",function(e){
-    if(!currentFolder){alert("Open a folder first.");fileInput.value="";return;}
-    const files=Array.from(e.target.files||[]);if(files.length===0){fileInput.value="";return;}
-    let loaded=0;files.forEach(file=>{const reader=new FileReader();reader.onload=function(evt){
-      currentFolder.files.push({name:file.name,file:evt.target.result});loaded++;if(loaded===files.length){saveData();render();fileInput.value="";}};reader.readAsDataURL(file);});
-  });
-  function deleteFile(ev,i){ev.stopPropagation();if(confirm("Delete this file?")){currentFolder.files.splice(i,1);saveData();render();}}
-  function getIcon(name){name=name.toLowerCase();
-    if(name.endsWith(".pdf"))return"https://img.icons8.com/color/96/pdf.png";
-    if(name.endsWith(".ppt")||name.endsWith(".pptx"))return"https://img.icons8.com/color/96/ms-powerpoint.png";
-    if(name.endsWith(".doc")||name.endsWith(".docx"))return"https://img.icons8.com/color/96/ms-word.png";
-    if(name.match(/\.(jpg|jpeg|png|gif)$/))return"https://img.icons8.com/color/96/image.png";
-    return"https://img.icons8.com/color/96/file.png";
-  }
-  function dataURLtoBlob(dataURL){const arr=dataURL.split(','),mime=arr[0].match(/:(.*?);/)[1];const bstr=atob(arr[1]);let n=bstr.length;const u8=new Uint8Array(n);while(n--)u8[n]=bstr.charCodeAt(n);return new Blob([u8],{type:mime});}
-  function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];});}
-  document.addEventListener("DOMContentLoaded",()=>{loadData();showPasswordDialog();});
-  document.getElementById("folderDialog").addEventListener("click",function(e){if(e.target===this)closeFolderDialog();});
-  document.querySelectorAll(".dialog-box").forEach(box=>{box.addEventListener("click",e=>e.stopPropagation());});
-</script>
+    function hidePasswordDialog(){ document.getElementById("passwordDialog").classList.remove("show"); }
+    function setPassword(){
+      const p1 = document.getElementById("newPass").value || "";
+      const p2 = document.getElementById("confirmPass").value || "";
+      const msg = document.getElementById("passMsg");
+      msg.textContent = "";
+      if(!p1 || !p2){ msg.textContent = "Please enter and confirm password."; return; }
+      if(p1.length < 4){ msg.textContent = "Password must be at least 4 characters."; return; }
+      if(p1 !== p2){ msg.textContent = "Passwords do not match."; return; }
+      localStorage.setItem(PASS_KEY, p1); unlockAndShow();
+    }
+    function checkPassword(){
+      const entered = document.getElementById("enterPass").value || "";
+      const saved = localStorage.getItem(PASS_KEY);
+      const msg = document.getElementById("passMsg");
+      msg.textContent = "";
+      if(entered === saved){ unlockAndShow(); } else { msg.textContent = "Incorrect password."; }
+    }
+    function showChangePass(){
+      const box = document.getElementById("passwordDialogBox");
+      box.innerHTML = `
+        <h3>Change Password</h3>
+        <input id="oldPass" type="password" placeholder="Current password" />
+        <input id="newPass2" type="password" placeholder="New password" />
+        <input id="confirmPass2" type="password" placeholder="Confirm new password" />
+        <div class="row">
+          <button class="muted" onclick="showPasswordDialog()">Back</button>
+          <button class="btn" onclick="changePassword()">Change</button>
+        </div>
+        <div id="passMsg" style="color:var(--error);margin-top:8px;"></div>`;
+    }
+    function changePassword(){
+      const oldP = document.getElementById("oldPass").value || "";
+      const n1 = document.getElementById("newPass2").value || "";
+      const n2 = document.getElementById("confirmPass2").value || "";
+      const saved = localStorage.getItem(PASS_KEY);
+      const msg = document.getElementById("passMsg");
+      msg.textContent = "";
+      if(oldP !== saved){ msg.textContent = "Incorrect current password."; return; }
+      if(n1.length < 4){ msg.textContent = "New password must be at least 4 characters."; return; }
+      if(n1 !== n2){ msg.textContent = "Passwords do not match."; return; }
+      localStorage.setItem(PASS_KEY, n1); unlockAndShow();
+    }
+    function forgotPassword(){
+      const ok = confirm("Forgot password? This will reset all your data!");
+      if(!ok) return;
+      localStorage.removeItem(PASS_KEY); localStorage.removeItem(DATA_KEY);
+      data = { folders: [] }; saveData(); showPasswordDialog();
+    }
+    function unlockAndShow(){
+      hidePasswordDialog(); loadData(); render();
+      container.style.display = "grid"; toolbar.style.display = "flex";
+    }
+    function lockApp(){
+      container.style.display = "none"; toolbar.style.display = "none"; showPasswordDialog();
+    }
+    
+    function render(){
+      container.innerHTML = "";
+      if(!currentFolder){
+        data.folders.forEach((folder, i) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <button class="delete-btn" onclick="deleteFolder(event,${i})">
+              <img src="https://img.icons8.com/ios-glyphs/30/ffffff/trash--v1.png" alt="delete">
+            </button>
+            <img src="https://img.icons8.com/color/96/folder-invoices.png"/>
+            <h3>${escapeHtml(folder.name)}</h3>
+            <div class="small">Files: ${folder.files.length}</div>`;
+          card.addEventListener("click",()=>openFolder(i)); container.appendChild(card);
+        });
+        if(data.folders.length===0){
+          const msg=document.createElement("div"); msg.style.gridColumn="1/-1"; msg.style.textAlign="center";
+          msg.innerHTML=`<div class="small">No folders yet. Use "New Folder".</div>`; container.appendChild(msg);
+        }
+      } else {
+        currentFolder.files.forEach((file,i)=>{
+          const card=document.createElement("div"); card.className="card";
+          card.innerHTML=`
+            <button class="delete-btn" onclick="deleteFile(event,${i})">
+              <img src="https://img.icons8.com/ios-glyphs/30/ffffff/trash--v1.png" alt="delete">
+            </button>
+            <img src="${getIcon(file.name)}"/>
+            <h3>${escapeHtml(file.name)}</h3>`;
+          card.addEventListener("click",()=>{
+            const blob=dataURLtoBlob(file.file);
+            const url=URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            URL.revokeObjectURL(url);
+          });
+          container.appendChild(card);
+        });
+        const backCard=document.createElement("div");backCard.className="card";backCard.style.gridColumn="1/-1";
+        backCard.innerHTML=`<h3>⬅ Back to folders</h3>`;backCard.addEventListener("click",goBack);container.insertBefore(backCard,container.firstChild);
+      }
+    }
+    function openFolder(i){currentFolder=data.folders[i];currentFolder.index=i;render();}
+    function goBack(){currentFolder=null;render();}
+    function openFolderDialog(e){if(e)e.stopPropagation();document.getElementById("folderDialog").classList.add("show");editIndex=null;setTimeout(()=>document.getElementById("folderName").focus(),100);}
+    function closeFolderDialog(){document.getElementById("folderDialog").classList.remove("show");document.getElementById("folderName").value="";}
+    function saveFolder(){
+      const name=document.getElementById("folderName").value.trim();if(!name){alert("Please enter a folder name.");return;}
+      if(editIndex!==null){data.folders[editIndex].name=name;editIndex=null;}else{data.folders.push({name,files:[]});}
+      saveData();closeFolderDialog();render();
+    }
+    function deleteFolder(ev,i){ev.stopPropagation();if(confirm("Delete this folder and all files?")){data.folders.splice(i,1);saveData();render();}}
+    fileInput.addEventListener("change",function(e){
+      if(!currentFolder){alert("Open a folder first.");fileInput.value="";return;}
+      const files=Array.from(e.target.files||[]);if(files.length===0){fileInput.value="";return;}
+      let loaded=0;files.forEach(file=>{const reader=new FileReader();reader.onload=function(evt){
+        currentFolder.files.push({name:file.name,file:evt.target.result});loaded++;if(loaded===files.length){saveData();render();fileInput.value="";}};reader.readAsDataURL(file);});
+    });
+    function deleteFile(ev,i){ev.stopPropagation();if(confirm("Delete this file?")){currentFolder.files.splice(i,1);saveData();render();}}
+    function getIcon(name){name=name.toLowerCase();
+      if(name.endsWith(".pdf"))return"https://img.icons8.com/color/96/pdf.png";
+      if(name.endsWith(".ppt")||name.endsWith(".pptx"))return"https://img.icons8.com/color/96/ms-powerpoint.png";
+      if(name.endsWith(".doc")||name.endsWith(".docx"))return"https://img.icons8.com/color/96/ms-word.png";
+      if(name.match(/\.(jpg|jpeg|png|gif)$/))return"https://img.icons8.com/color/96/image.png";
+      return"https://img.icons8.com/color/96/file.png";
+    }
+    function dataURLtoBlob(dataURL){const arr=dataURL.split(','),mime=arr[0].match(/:(.*?);/)[1];const bstr=atob(arr[1]);let n=bstr.length;const u8=new Uint8Array(n);while(n--)u8[n]=bstr.charCodeAt(n);return new Blob([u8],{type:mime});}
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];});}
+    document.addEventListener("DOMContentLoaded",()=>{loadData();showPasswordDialog();});
+    document.getElementById("folderDialog").addEventListener("click",function(e){if(e.target===this)closeFolderDialog();});
+    document.querySelectorAll(".dialog-box").forEach(box=>{box.addEventListener("click",e=>e.stopPropagation());});
+  </script>
 </body>
 </html>
