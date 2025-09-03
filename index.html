@@ -90,7 +90,6 @@
       cursor: pointer;
     }
     .delete-btn img { width: 18px; height: 18px; }
-    /* dialogs */
     .dialog {
       display: none;
       position: fixed;
@@ -299,8 +298,18 @@
           card.addEventListener("click",()=>{
             const blob=dataURLtoBlob(file.file);
             const url=URL.createObjectURL(blob);
-            window.open(url, '_blank');
-            URL.revokeObjectURL(url);
+            if(file.name.toLowerCase().endsWith(".pdf")){
+              // Force download so system PDF app opens it
+              const a=document.createElement("a");
+              a.href=url;
+              a.download=file.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            } else {
+              window.open(url, '_blank');
+            }
+            setTimeout(()=>URL.revokeObjectURL(url),1000);
           });
           container.appendChild(card);
         });
@@ -340,3 +349,4 @@
   </script>
 </body>
 </html>
+
