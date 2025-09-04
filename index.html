@@ -204,13 +204,28 @@
             });
         }
 
-        // 🔥 Direct File Open Function
+        // 🔥 Improved Direct File Open Function
         function openFileViewer(file) {
-            const link = document.createElement("a");
-            link.href = file.file;
-            link.target = "_blank";
-            link.download = file.name;
-            link.click();
+            // Check if a Blob URL already exists
+            if (file.blobUrl) {
+                window.open(file.blobUrl, '_blank');
+                return;
+            }
+
+            // Convert Base64 Data URL to Blob
+            const byteString = atob(file.file.split(',')[1]);
+            const mimeString = file.file.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            
+            // Create a Blob URL and open it
+            const blobUrl = URL.createObjectURL(blob);
+            file.blobUrl = blobUrl; // Store the URL to prevent re-creation
+            window.open(blobUrl, '_blank');
         }
 
         function render() {
