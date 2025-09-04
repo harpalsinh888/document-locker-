@@ -170,15 +170,6 @@
     <div class="dialog show" id="passwordDialog">
         <div class="dialog-box" id="passwordDialogBox"></div>
     </div>
-    <div class="dialog" id="viewerDialog">
-        <div class="dialog-box" style="max-width:98vw;max-height:95vh;padding:0;overflow:auto;">
-            <div style="display:flex;justify-content:space-between;align-items:center;background:#eee;padding:8px 12px;">
-                <span id="viewerTitle" style="font-weight:700;">View File</span>
-                <button class="muted" onclick="closeViewerDialog()" style="margin-left:14px;">Close</button>
-            </div>
-            <div id="viewerContent" style="width:100%;height:70vh;background:#fff;"></div>
-        </div>
-    </div>
     <script>
         const PASS_KEY = "eduDocsPassword_v1";
         const DATA_KEY = "eduDocs_v1";
@@ -207,40 +198,19 @@
             data = d ? JSON.parse(d) : { folders: [] };
         }
 
-        function dataURLtoBlob(dataURL) {
-            const arr = dataURL.split(',');
-            const mime = arr[0].match(/:(.*?);/)[1];
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8 = new Uint8Array(n);
-            while(n--) u8[n] = bstr.charCodeAt(n);
-            return new Blob([u8], { type: mime });
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function(m) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+            });
         }
 
-        function showViewerDialog(title, innerHtml) {
-            document.getElementById("viewerTitle").textContent = title;
-            document.getElementById("viewerContent").innerHTML = innerHtml;
-            document.getElementById("viewerDialog").classList.add("show");
-        }
-        function closeViewerDialog() {
-            document.getElementById("viewerDialog").classList.remove("show");
-            document.getElementById("viewerContent").innerHTML = "";
-        }
-        document.getElementById("viewerDialog").addEventListener("click", function(e) {
-            if(e.target===this) closeViewerDialog();
-        });
-
+        // 🔥 Direct File Open Function
         function openFileViewer(file) {
-            const name = file.name.toLowerCase();
-            if(name.endsWith('.pdf')) {
-                showViewerDialog(file.name, `<iframe src="${file.file}" style="width:100%;height:100%;border:none;"></iframe>
-                <div style="text-align:center;margin-top:8px;"><a href="${file.file}" download="${escapeHtml(file.name)}" class="btn">Download PDF</a></div>`);
-            } else if(name.match(/\.(jpg|jpeg|png|gif)$/)) {
-                showViewerDialog(file.name, `<img src="${file.file}" style="max-width:100%;max-height:100%;display:block;margin:auto;">
-                <div style="text-align:center;margin-top:8px;"><a href="${file.file}" download="${escapeHtml(file.name)}" class="btn">Download Image</a></div>`);
-            } else {
-                showViewerDialog(file.name, `<a href="${file.file}" download="${escapeHtml(file.name)}" class="btn" style="margin:28px auto;display:block;">Download file</a>`);
-            }
+            const link = document.createElement("a");
+            link.href = file.file;
+            link.target = "_blank";
+            link.download = file.name;
+            link.click();
         }
 
         function render() {
@@ -288,11 +258,6 @@
             }
         }
 
-        function escapeHtml(s) {
-            return String(s).replace(/[&<>"']/g, function(m) {
-                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
-            });
-        }
         function openFolder(i) {
             currentFolder = data.folders[i];
             currentFolder.index = i;
@@ -347,7 +312,6 @@
                 fileInput.value = "";
                 return;
             }
-            
             let loaded = 0;
             files.forEach(file => {
                 const reader = new FileReader();
@@ -472,7 +436,7 @@
             toolbar.style.display = "none";
             showPasswordDialog();
         }
-        
+
         document.addEventListener("DOMContentLoaded", () => {
             loadData();
             showPasswordDialog();
@@ -486,5 +450,6 @@
     </script>
 </body>
 </html>
+
 
 
